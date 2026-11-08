@@ -23,9 +23,10 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ---
 
 ## [Unreleased]
-- Skema database awal: tabel `menus`, `capacity_slots`, `promotions` + `branches` dan kolom `users` (`role`, `branch_id`, 2FA), beserta model, factory, dan seeder (tugas 1.1 & 1.4).
+
 
 ### Added
+- Skema database awal: tabel `menus`, `capacity_slots`, `promotions` + `branches` dan kolom `users` (`role`, `branch_id`, 2FA), beserta     model, factory, dan seeder (1.1, 1.4, #13)
 - Dokumen proyek: `AGENTS.md`, `CONTRIBUTING.md`, `docs/PRD.md`, dan `README.md` khusus Nabe Coffee
 - Template Pull Request, template issue tugas, dan `CODEOWNERS`
 - Tugas 1.5 Two-Factor Authentication (Google Authenticator) di sprint backlog, PRD, dan AGENTS.md
