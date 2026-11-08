@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Nabe Coffee — Good Coffee. Good Company.' }}</title>
+    <title>@yield('title', $title ?? 'Nabe Coffee — Good Coffee. Good Company.')</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/brand/favicon-64.png') }}">
@@ -24,13 +24,13 @@
         <!-- Navigation Left (Desktop) -->
         <nav class="hidden lg:flex items-center gap-8 flex-1">
             <a href="{{ url('/') }}" class="text-[11px] font-bold tracking-wider uppercase text-ink hover:text-primary transition-colors">
-                HOME
+                Beranda
             </a>
             <a href="{{ url('/#about') }}" class="text-[11px] font-bold tracking-wider uppercase text-ink hover:text-primary transition-colors">
-                ABOUT US
+                Tentang Kami
             </a>
             <a href="{{ url('/#outlet') }}" class="text-[11px] font-bold tracking-wider uppercase text-ink hover:text-primary transition-colors">
-                OUR OUTLET
+                Cabang
             </a>
         </nav>
 
@@ -44,10 +44,10 @@
         <!-- Navigation Right (Desktop) -->
         <nav class="hidden lg:flex items-center justify-end gap-8 flex-1">
             <a href="{{ url('/#menu') }}" class="text-[11px] font-bold tracking-wider uppercase text-ink hover:text-primary transition-colors">
-                OUR MENU
+                Menu
             </a>
             <a href="#contact" class="text-[11px] font-bold tracking-wider uppercase text-ink hover:text-primary transition-colors">
-                CONTACT
+                Kontak
             </a>
             <x-button variant="primary" href="{{ url('/#reservation') }}" class="text-[11px] py-3 px-5 uppercase whitespace-nowrap tracking-wider">
                 Reservasi Sekarang <span>↗</span>
@@ -64,7 +64,7 @@
                 id="mobile-nav-toggle"
                 aria-label="Buka menu navigasi"
                 aria-expanded="false"
-                class="w-10 h-10 flex items-center justify-center rounded-[5px] border border-line bg-white text-ink hover:bg-soft focus:outline-none focus:ring-2 focus:ring-primary"
+                class="w-10 h-10 flex items-center justify-center rounded-[5px] border border-line bg-white text-ink hover:bg-soft focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
             >
                 <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -79,27 +79,27 @@
     <!-- Mobile Navigation Drawer -->
     <div id="mobile-nav-drawer" class="hidden lg:hidden border-b border-line bg-cream px-6 py-5 flex-col gap-4 shadow-lg animate-fadeIn">
         <a href="{{ url('/') }}" class="text-[12px] font-bold tracking-wider uppercase text-ink hover:text-primary py-2 border-b border-line/40 flex items-center justify-between">
-            <span>HOME</span>
+            <span>Beranda</span>
             <span class="text-muted text-[10px]">↗</span>
         </a>
         <a href="{{ url('/#about') }}" class="text-[12px] font-bold tracking-wider uppercase text-ink hover:text-primary py-2 border-b border-line/40 flex items-center justify-between">
-            <span>ABOUT US</span>
+            <span>Tentang Kami</span>
             <span class="text-muted text-[10px]">↗</span>
         </a>
         <a href="{{ url('/#outlet') }}" class="text-[12px] font-bold tracking-wider uppercase text-ink hover:text-primary py-2 border-b border-line/40 flex items-center justify-between">
-            <span>OUR OUTLET</span>
+            <span>Cabang</span>
             <span class="text-muted text-[10px]">↗</span>
         </a>
         <a href="{{ url('/#menu') }}" class="text-[12px] font-bold tracking-wider uppercase text-ink hover:text-primary py-2 border-b border-line/40 flex items-center justify-between">
-            <span>OUR MENU</span>
+            <span>Menu</span>
             <span class="text-muted text-[10px]">↗</span>
         </a>
         <a href="#contact" class="text-[12px] font-bold tracking-wider uppercase text-ink hover:text-primary py-2 border-b border-line/40 flex items-center justify-between">
-            <span>CONTACT</span>
+            <span>Kontak</span>
             <span class="text-muted text-[10px]">↗</span>
         </a>
         <a href="{{ route('login') }}" class="text-[12px] font-bold tracking-wider uppercase text-primary py-2 flex items-center justify-between">
-            <span>LOGIN ADMIN</span>
+            <span>Login Admin</span>
             <span class="text-primary text-[10px]">↗</span>
         </a>
     </div>
@@ -138,7 +138,7 @@
 
             <!-- Col 2: Locations & Opening Hours -->
             <div>
-                <span class="eyebrow text-muted mb-3">COME SAY HELLO</span>
+                <span class="eyebrow text-muted mb-3">HUBUNGI KAMI</span>
                 <p class="text-[13px] font-medium text-ink mb-1">Cabang Utama (Kusumanegara)</p>
                 <p class="text-[12px] text-muted leading-relaxed mb-3">
                     Jl. Kusumanegara No.11, Semaki, Kec. Umbulharjo, Kota Yogyakarta, DIY 55166
@@ -159,13 +159,13 @@
 
             <!-- Col 3: Explore Navigation -->
             <div>
-                <span class="eyebrow text-muted mb-3">EXPLORE</span>
+                <span class="eyebrow text-muted mb-3">JELAJAH</span>
                 <ul class="space-y-2.5 text-[12px]">
                     <li>
-                        <a href="{{ url('/#outlet') }}" class="text-ink hover:text-primary transition-colors">Our Outlet</a>
+                        <a href="{{ url('/#outlet') }}" class="text-ink hover:text-primary transition-colors">Cabang</a>
                     </li>
                     <li>
-                        <a href="{{ url('/#menu') }}" class="text-ink hover:text-primary transition-colors">Our Menu</a>
+                        <a href="{{ url('/#menu') }}" class="text-ink hover:text-primary transition-colors">Menu</a>
                     </li>
                     <li>
                         <a href="{{ url('/#reservation') }}" class="text-ink hover:text-primary transition-colors">Reservasi Online</a>
@@ -199,18 +199,41 @@
             const hamburgerIcon = document.getElementById('hamburger-icon');
             const closeIcon = document.getElementById('close-icon');
 
+            function closeDrawer() {
+                if (!toggleBtn || !drawer) return;
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                drawer.classList.add('hidden');
+                drawer.classList.remove('flex');
+                hamburgerIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
+
+            function openDrawer() {
+                if (!toggleBtn || !drawer) return;
+                toggleBtn.setAttribute('aria-expanded', 'true');
+                drawer.classList.remove('hidden');
+                drawer.classList.add('flex');
+                hamburgerIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+            }
+
             if (toggleBtn && drawer) {
                 toggleBtn.addEventListener('click', function () {
                     const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-                    toggleBtn.setAttribute('aria-expanded', !isExpanded);
-                    drawer.classList.toggle('hidden');
-                    drawer.classList.toggle('flex');
-                    hamburgerIcon.classList.toggle('hidden');
-                    closeIcon.classList.toggle('hidden');
+                    if (isExpanded) {
+                        closeDrawer();
+                    } else {
+                        openDrawer();
+                    }
+                });
+
+                // Tutup drawer secara otomatis saat link navigasi di dalam drawer diklik
+                const drawerLinks = drawer.querySelectorAll('a');
+                drawerLinks.forEach(function (link) {
+                    link.addEventListener('click', closeDrawer);
                 });
             }
         });
     </script>
 </body>
 </html>
-

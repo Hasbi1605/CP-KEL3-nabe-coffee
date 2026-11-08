@@ -27,7 +27,7 @@
                 </svg>
                 <div>
                     <strong class="font-bold block">Kode tidak valid:</strong>
-                    <span>{{ session('error') ?? $errors->first('code') ?? $errors->first('recovery_code') ?? 'Kode autentikasi salah atau telah kadaluarsa. Silakan coba lagi.' }}</span>
+                    <span>{{ session('error') ?: ($errors->first('code') ?: ($errors->first('recovery_code') ?: 'Kode autentikasi salah atau telah kadaluarsa. Silakan coba lagi.')) }}</span>
                 </div>
             </div>
         @endif
