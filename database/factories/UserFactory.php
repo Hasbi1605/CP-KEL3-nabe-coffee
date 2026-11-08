@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -31,8 +32,30 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'role' => 'branch_admin',
-            'branch_id' => null,
+            'branch_id' => Branch::factory(),
         ];
+    }
+
+    /**
+     * Indicate that the user is an owner (no branch).
+     */
+    public function owner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'owner',
+            'branch_id' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a branch admin (always has a branch).
+     */
+    public function branchAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'branch_admin',
+            'branch_id' => Branch::factory(),
+        ]);
     }
 
     /**

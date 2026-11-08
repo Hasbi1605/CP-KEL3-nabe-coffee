@@ -23,9 +23,12 @@ class UserSeeder extends Seeder
 
         // 1 admin per cabang
         foreach (Branch::all() as $branch) {
+            // Nama cabang lengkap ("Nabe Coffee Kusumanegara") — email pakai nama pendeknya
+            $slug = Str::slug(str_replace('Nabe Coffee ', '', $branch->name));
+
             User::create([
                 'name' => 'Admin '.$branch->name,
-                'email' => 'admin-'.Str::slug($branch->name).'@nabe.coffee',
+                'email' => 'admin-'.$slug.'@nabe.coffee',
                 'password' => Hash::make('password'),
                 'role' => 'branch_admin',
                 'branch_id' => $branch->id,
