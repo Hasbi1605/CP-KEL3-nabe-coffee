@@ -25,6 +25,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ## [Unreleased]
 
 ### Added
+- Halaman company profile & landing page: hero, cerita brand, visi-misi, galeri suasana, promo, dan info 4 cabang (3.1)
 - Layout publik (navbar, footer, topline), komponen Blade button/input/badge, halaman login admin, dan halaman Two-Factor Authentication (1.2, #3)
 - Dokumen proyek: `AGENTS.md`, `CONTRIBUTING.md`, `docs/PRD.md`, dan `README.md` khusus Nabe Coffee
 - Template Pull Request, template issue tugas, dan `CODEOWNERS`
