@@ -25,6 +25,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ## [Unreleased]
 
 ### Added
+- Komponen Blade `branch-card` info cabang dengan integrasi Google Maps iframe dan tombol WhatsApp (3.2, #9)
 - Dokumen proyek: `AGENTS.md`, `CONTRIBUTING.md`, `docs/PRD.md`, dan `README.md` khusus Nabe Coffee
 - Template Pull Request, template issue tugas, dan `CODEOWNERS`
 - Tugas 1.5 Two-Factor Authentication (Google Authenticator) di sprint backlog, PRD, dan AGENTS.md
