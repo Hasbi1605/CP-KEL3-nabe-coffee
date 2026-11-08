@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('ends_at');               // periode selesai
             $table->text('terms')->nullable();         // syarat
             $table->string('banner')->nullable();      // banner (path di storage)
-            $table->foreignId('branch_id')->nullable()->constrained()->nullOnDelete(); // null = semua cabang
+            $table->foreignId('branch_id')->nullable()->constrained()->cascadeOnDelete(); // null = semua cabang
             $table->timestamps();
         });
     }
