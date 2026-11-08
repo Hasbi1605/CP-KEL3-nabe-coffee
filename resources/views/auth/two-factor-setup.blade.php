@@ -27,7 +27,7 @@
                 </svg>
                 <div>
                     <strong class="font-bold block">Aktivasi belum berhasil:</strong>
-                    <span>{{ session('error') ?? $errors->first('code') ?? 'Kode konfirmasi salah. Pastikan waktu di perangkat Anda akurat.' }}</span>
+                    <span>{{ session('error') ?: ($errors->first('code') ?: 'Kode konfirmasi salah. Pastikan waktu di perangkat Anda akurat.') }}</span>
                 </div>
             </div>
         @endif

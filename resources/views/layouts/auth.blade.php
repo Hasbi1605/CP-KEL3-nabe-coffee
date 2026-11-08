@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Autentikasi Admin — Nabe Coffee' }}</title>
+    <title>@yield('title', $title ?? 'Autentikasi Admin — Nabe Coffee')</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/brand/favicon-64.png') }}">
@@ -28,8 +28,8 @@
             <div>
                 <!-- Logo -->
                 <div class="mb-12 lg:mb-16 pt-8 lg:pt-0">
-                    <a href="{{ url('/') }}" class="inline-block transition-transform hover:scale-105">
-                        <img src="{{ asset('images/brand/logo-nabe-480.png') }}" alt="Nabe Coffee" class="h-11 lg:h-14 w-auto brightness-0 invert object-contain" />
+                    <a href="{{ url('/') }}" class="inline-flex items-center px-4 py-2.5 rounded-[5px] bg-cream border border-line shadow-sm transition-transform hover:scale-105">
+                        <img src="{{ asset('images/brand/logo-nabe-480.png') }}" alt="Nabe Coffee" class="h-9 lg:h-11 w-auto object-contain" />
                     </a>
                 </div>
 
