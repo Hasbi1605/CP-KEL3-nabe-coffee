@@ -307,3 +307,4 @@
 @if(!$isSingle)
     </div>
 @endif
+

@@ -82,3 +82,4 @@ class BranchCardTest extends TestCase
         $view->assertSee('https://maps.google.com/?cid=12345', false);
     }
 }
+
