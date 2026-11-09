@@ -5,7 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Models\CapacitySlot;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class CapacitySlotRequest extends FormRequest
 {
@@ -20,14 +20,13 @@ class CapacitySlotRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * Kolom kuota mengikuti skema resmi (1.1): max_quota, plus unique
-     * kombinasi cabang + tanggal + jam mulai + jam selesai.
+     * Kolom kuota mengikuti skema resmi (1.1): max_quota.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'branch_id' => ['required', 'exists:branches,id'],
             'date' => ['required', 'date'],
             'start_time' => ['required', 'date_format:H:i', 'before:end_time'],
@@ -35,19 +34,43 @@ class CapacitySlotRequest extends FormRequest
             'max_quota' => ['required', 'integer', 'min:1'],
             'estimated_walk_in' => ['sometimes', 'integer', 'min:0'],
         ];
+    }
 
-        if ($this->filled(['branch_id', 'date', 'start_time', 'end_time'])) {
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if (! $this->filled(['branch_id', 'date', 'start_time', 'end_time'])) {
+                return;
+            }
+
+            // Kombinasi cabang + tanggal + jam harus unik (sesuai unique
+            // di migration resmi). TIME() dipakai agar '09:00' dari form
+            // sama dengan '09:00:00' yang tersimpan di kolom time.
             $slot = $this->route('slot');
-            $ignoreId = $slot instanceof CapacitySlot ? $slot->id : null;
 
-            $rules['branch_id'][] = Rule::unique('capacity_slots', 'branch_id')
-                ->where('date', $this->input('date'))
-                ->where('start_time', $this->input('start_time'))
-                ->where('end_time', $this->input('end_time'))
-                ->ignore($ignoreId);
+            $query = CapacitySlot::query()
+                ->where('branch_id', $this->input('branch_id'))
+                ->whereDate('date', $this->input('date'))
+                ->whereRaw('TIME(start_time) = ?', [$this->toSeconds($this->input('start_time'))])
+                ->whereRaw('TIME(end_time) = ?', [$this->toSeconds($this->input('end_time'))]);
+
+            if ($slot instanceof CapacitySlot) {
+                $query->where('id', '!=', $slot->id);
+            }
+
+            if ($query->exists()) {
+                $validator->errors()->add('branch_id', 'Kuota untuk cabang, tanggal, dan jam ini sudah ada.');
+            }
+        });
+    }
+
+    private function toSeconds(mixed $time): mixed
+    {
+        if (is_string($time) && preg_match('/^\d{2}:\d{2}$/', $time) === 1) {
+            return $time.':00';
         }
 
-        return $rules;
+        return $time;
     }
 
     /**
@@ -58,7 +81,6 @@ class CapacitySlotRequest extends FormRequest
         return [
             'branch_id.required' => 'Cabang wajib dipilih.',
             'branch_id.exists' => 'Cabang yang dipilih tidak ditemukan.',
-            'branch_id.unique' => 'Kuota untuk cabang, tanggal, dan jam ini sudah ada.',
             'date.required' => 'Tanggal wajib diisi.',
             'date.date' => 'Tanggal harus berupa tanggal yang valid.',
             'start_time.required' => 'Jam mulai wajib diisi.',
