@@ -35,7 +35,18 @@ class MenuController extends Controller
         $data['is_available'] = $request->boolean('is_available');
 
         if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('menus', 'public');
+            $photoPath = $request->file('photo')->store('menus', 'public');
+
+            // Disk public memakai 'throw' => false, jadi kegagalan tulis
+            // mengembalikan false, bukan exception. Tolak sebelum record
+            // dibuat agar photo tidak tersimpan sebagai "0".
+            if ($photoPath === false) {
+                return redirect()->back()
+                    ->withErrors(['photo' => 'Foto menu gagal diunggah. Silakan coba lagi.'])
+                    ->withInput();
+            }
+
+            $data['photo'] = $photoPath;
         }
 
         $menu = Menu::create($data);
@@ -73,6 +84,17 @@ class MenuController extends Controller
             // record berhasil diperbarui, supaya tidak hilang saat
             // penyimpanan foto atau database gagal.
             $newPhotoPath = $request->file('photo')->store('menus', 'public');
+
+            // Disk public memakai 'throw' => false, jadi kegagalan tulis
+            // mengembalikan false, bukan exception. Tolak sebelum record
+            // diubah atau foto lama dihapus, agar photo tidak tersimpan
+            // sebagai "0" dan file lama tetap utuh.
+            if ($newPhotoPath === false) {
+                return redirect()->back()
+                    ->withErrors(['photo' => 'Foto menu gagal diunggah. Silakan coba lagi.'])
+                    ->withInput();
+            }
+
             $data['photo'] = $newPhotoPath;
         }
 

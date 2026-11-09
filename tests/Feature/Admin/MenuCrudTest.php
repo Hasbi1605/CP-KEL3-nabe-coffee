@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\Branch;
 use App\Models\Menu;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -36,6 +37,32 @@ class MenuCrudTest extends TestCase
             'is_best_seller' => false,
             'is_available' => true,
         ];
+    }
+
+    /**
+     * Ganti disk public dengan adapter yang selalu gagal menulis, untuk
+     * mensimulasikan store() yang mengembalikan false (disk memakai
+     * 'throw' => false, jadi gagal tulis tidak melempar exception).
+     * Baca dan hapus file tetap memakai driver asli di atas fake disk.
+     */
+    private function diskGagalSimpanFoto(): void
+    {
+        $real = Storage::disk('public');
+
+        $failing = new class($real->getDriver(), $real->getAdapter(), $real->getConfig()) extends FilesystemAdapter
+        {
+            public function putFile($path, $file = null, $options = [])
+            {
+                return false;
+            }
+
+            public function putFileAs($path, $file, $name = null, $options = [])
+            {
+                return false;
+            }
+        };
+
+        Storage::set('public', $failing);
     }
 
     public function test_owner_dapat_membuat_menu_dengan_upload_foto(): void
@@ -121,6 +148,51 @@ class MenuCrudTest extends TestCase
         $this->assertSame($oldPhoto, $menu->fresh()->photo);
         // Foto baru yang sempat terunggah ikut dibersihkan.
         $this->assertSame([$oldPhoto], Storage::disk('public')->allFiles('menus'));
+    }
+
+    public function test_upload_foto_gagal_tidak_menghapus_foto_lama_saat_mengubah_menu(): void
+    {
+        Storage::fake('public');
+        $menu = Menu::factory()->create([
+            'photo' => UploadedFile::fake()->image('lama.jpg')->store('menus', 'public'),
+        ]);
+
+        $oldPhoto = $menu->photo;
+
+        // Simulasikan store() yang mengembalikan false, bukan exception.
+        $this->diskGagalSimpanFoto();
+
+        $response = $this->actingAs($this->owner())
+            ->put(route('admin.menus.update', $menu), array_merge($this->validData($menu->branch_id), [
+                'photo' => UploadedFile::fake()->image('baru.jpg'),
+            ]));
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('photo');
+        $response->assertSessionMissing('success');
+        // Foto lama dan path di database tetap utuh.
+        Storage::disk('public')->assertExists($oldPhoto);
+        $this->assertSame($oldPhoto, $menu->fresh()->photo);
+        $this->assertSame([$oldPhoto], Storage::disk('public')->allFiles('menus'));
+    }
+
+    public function test_upload_foto_gagal_tidak_membuat_menu_baru(): void
+    {
+        Storage::fake('public');
+        $branch = Branch::factory()->create();
+
+        $this->diskGagalSimpanFoto();
+
+        $response = $this->actingAs($this->owner())
+            ->post(route('admin.menus.store'), array_merge($this->validData($branch->id), [
+                'photo' => UploadedFile::fake()->image('es-kopi.jpg'),
+            ]));
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('photo');
+        $response->assertSessionMissing('success');
+        $this->assertDatabaseMissing('menus', ['name' => 'Es Kopi Nabe']);
+        $this->assertSame([], Storage::disk('public')->allFiles('menus'));
     }
 
     public function test_owner_dapat_menghapus_menu_dan_fotonya(): void
