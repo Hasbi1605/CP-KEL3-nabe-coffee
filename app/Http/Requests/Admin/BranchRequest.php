@@ -19,27 +19,30 @@ class BranchRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
+     * Nama kolom mengikuti skema resmi (1.1): opens_at, closes_at, maps_url.
+     * Alamat dan nomor WhatsApp admin nullable di skema resmi.
+     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'address' => ['required', 'string', 'max:500'],
-            'opening_time' => ['required', 'date_format:H:i'],
-            'closing_time' => ['required', 'date_format:H:i'],
-            'admin_whatsapp' => ['required', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'opens_at' => ['required', 'date_format:H:i'],
+            'closes_at' => ['required', 'date_format:H:i'],
+            'admin_whatsapp' => ['nullable', 'string', 'max:20'],
             'telegram_chat_id' => ['nullable', 'string', 'max:255'],
             'pic_email' => ['nullable', 'email', 'max:255'],
-            'google_maps_link' => ['nullable', 'url', 'max:1000'],
+            'maps_url' => ['nullable', 'url', 'max:1000'],
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            $opening = $this->input('opening_time');
-            $closing = $this->input('closing_time');
+            $opening = $this->input('opens_at');
+            $closing = $this->input('closes_at');
 
             if (! is_string($opening) || ! is_string($closing)) {
                 return;
@@ -50,7 +53,7 @@ class BranchRequest extends FormRequest
             $closingMinutes = $closing === '00:00' ? 24 * 60 : $this->toMinutes($closing);
 
             if ($openingMinutes >= $closingMinutes) {
-                $validator->errors()->add('closing_time', 'Jam tutup harus setelah jam buka.');
+                $validator->errors()->add('closes_at', 'Jam tutup harus setelah jam buka.');
             }
         });
     }
@@ -70,19 +73,17 @@ class BranchRequest extends FormRequest
         return [
             'name.required' => 'Nama cabang wajib diisi.',
             'name.max' => 'Nama cabang maksimal 255 karakter.',
-            'address.required' => 'Alamat cabang wajib diisi.',
             'address.max' => 'Alamat cabang maksimal 500 karakter.',
-            'opening_time.required' => 'Jam buka wajib diisi.',
-            'opening_time.date_format' => 'Jam buka harus dalam format jam:menit, contoh 07:00.',
-            'closing_time.required' => 'Jam tutup wajib diisi.',
-            'closing_time.date_format' => 'Jam tutup harus dalam format jam:menit, contoh 22:00.',
-            'admin_whatsapp.required' => 'Nomor WhatsApp admin wajib diisi.',
+            'opens_at.required' => 'Jam buka wajib diisi.',
+            'opens_at.date_format' => 'Jam buka harus dalam format jam:menit, contoh 07:00.',
+            'closes_at.required' => 'Jam tutup wajib diisi.',
+            'closes_at.date_format' => 'Jam tutup harus dalam format jam:menit, contoh 22:00.',
             'admin_whatsapp.max' => 'Nomor WhatsApp admin maksimal 20 karakter.',
             'telegram_chat_id.max' => 'ID chat Telegram maksimal 255 karakter.',
             'pic_email.email' => 'Email penanggung jawab harus berupa alamat email yang valid.',
             'pic_email.max' => 'Email penanggung jawab maksimal 255 karakter.',
-            'google_maps_link.url' => 'Tautan Google Maps harus berupa URL yang valid.',
-            'google_maps_link.max' => 'Tautan Google Maps maksimal 1000 karakter.',
+            'maps_url.url' => 'Tautan Google Maps harus berupa URL yang valid.',
+            'maps_url.max' => 'Tautan Google Maps maksimal 1000 karakter.',
         ];
     }
 
@@ -94,12 +95,12 @@ class BranchRequest extends FormRequest
         return [
             'name' => 'nama cabang',
             'address' => 'alamat',
-            'opening_time' => 'jam buka',
-            'closing_time' => 'jam tutup',
+            'opens_at' => 'jam buka',
+            'closes_at' => 'jam tutup',
             'admin_whatsapp' => 'nomor WhatsApp admin',
             'telegram_chat_id' => 'ID chat Telegram',
             'pic_email' => 'email penanggung jawab',
-            'google_maps_link' => 'tautan Google Maps',
+            'maps_url' => 'tautan Google Maps',
         ];
     }
 }

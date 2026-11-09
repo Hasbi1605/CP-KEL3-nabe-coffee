@@ -18,9 +18,7 @@ class BranchCrudTest extends TestCase
 
     private function branchAdmin(): User
     {
-        $branch = Branch::factory()->create();
-
-        return User::factory()->branchAdmin($branch->id)->create();
+        return User::factory()->branchAdmin()->create();
     }
 
     /** @return array<string, mixed> */
@@ -29,12 +27,12 @@ class BranchCrudTest extends TestCase
         return [
             'name' => 'Kusumanegara',
             'address' => 'Jl. Kusumanegara No.11, Yogyakarta',
-            'opening_time' => '07:00',
-            'closing_time' => '22:00',
+            'opens_at' => '07:00',
+            'closes_at' => '22:00',
             'admin_whatsapp' => '6281234567890',
             'telegram_chat_id' => '-1001234567890',
             'pic_email' => 'pj@nabecoffee.id',
-            'google_maps_link' => 'https://maps.google.com/?q=nabe+coffee',
+            'maps_url' => 'https://maps.google.com/?q=nabe+coffee',
         ];
     }
 
@@ -105,17 +103,19 @@ class BranchCrudTest extends TestCase
             ->post(route('admin.branches.store'), [
                 'name' => '',
                 'address' => '',
-                'opening_time' => '22:00',
-                'closing_time' => '07:00',
+                'opens_at' => '22:00',
+                'closes_at' => '07:00',
                 'admin_whatsapp' => '',
-                'google_maps_link' => 'bukan-url',
+                'maps_url' => 'bukan-url',
             ]);
 
-        $response->assertSessionHasErrors(['name', 'address', 'admin_whatsapp', 'google_maps_link', 'closing_time']);
+        // Alamat dan nomor WhatsApp admin nullable di skema resmi (1.1),
+        // jadi keduanya tidak lagi memicu error validasi saat kosong.
+        $response->assertSessionHasErrors(['name', 'maps_url', 'closes_at']);
 
         $errors = session('errors')->getBag('default');
         $this->assertStringContainsString('wajib diisi', $errors->first('name'));
-        $this->assertStringContainsString('harus setelah jam buka', $errors->first('closing_time'));
+        $this->assertStringContainsString('harus setelah jam buka', $errors->first('closes_at'));
     }
 
     public function test_jam_tutup_tengah_malam_diterima(): void
@@ -123,7 +123,7 @@ class BranchCrudTest extends TestCase
         // Cabang PRD buka 07.00 dan tutup 00.00 (tengah malam).
         $response = $this->actingAs($this->owner())
             ->post(route('admin.branches.store'), array_merge($this->validData(), [
-                'closing_time' => '00:00',
+                'closes_at' => '00:00',
             ]));
 
         $response->assertRedirect();

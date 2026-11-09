@@ -9,9 +9,9 @@
     @endif
     <dl class="bg-white p-4 rounded border space-y-2">
         <div><dt class="font-semibold">Cabang</dt><dd>{{ $menu->branch->name }}</dd></div>
-        <div><dt class="font-semibold">Kategori</dt><dd>{{ $menu->category }}</dd></div>
+        <div><dt class="font-semibold">Kategori</dt><dd>{{ \App\Models\Menu::CATEGORY_LABELS[$menu->category] ?? $menu->category }}</dd></div>
         <div><dt class="font-semibold">Harga</dt><dd>Rp{{ number_format($menu->price, 0, ',', '.') }}</dd></div>
-        <div><dt class="font-semibold">Tag</dt><dd>{{ $menu->tags ?? '-' }}</dd></div>
+        <div><dt class="font-semibold">Tag</dt><dd>{{ is_array($menu->tags) ? implode(', ', $menu->tags) : ($menu->tags ?? '-') }}</dd></div>
         <div><dt class="font-semibold">Terlaris</dt><dd>{{ $menu->is_best_seller ? 'Ya' : 'Tidak' }}</dd></div>
         <div><dt class="font-semibold">Tersedia</dt><dd>{{ $menu->is_available ? 'Ya' : 'Tidak' }}</dd></div>
     </dl>

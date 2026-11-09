@@ -21,9 +21,7 @@ class MenuCrudTest extends TestCase
 
     private function branchAdmin(): User
     {
-        $branch = Branch::factory()->create();
-
-        return User::factory()->branchAdmin($branch->id)->create();
+        return User::factory()->branchAdmin()->create();
     }
 
     /** @return array<string, mixed> */
@@ -32,7 +30,7 @@ class MenuCrudTest extends TestCase
         return [
             'branch_id' => $branchId,
             'name' => 'Es Kopi Nabe',
-            'category' => 'kopi',
+            'category' => 'coffee',
             'price' => 25000,
             'tags' => 'kopi, es',
             'is_best_seller' => false,
@@ -54,6 +52,9 @@ class MenuCrudTest extends TestCase
         $menu = Menu::first();
         $this->assertNotNull($menu);
         $this->assertSame('Es Kopi Nabe', $menu->name);
+        $this->assertSame('coffee', $menu->category);
+        // Tag dikirim sebagai teks dipisah koma, disimpan sebagai JSON (array).
+        $this->assertSame(['kopi', 'es'], $menu->tags);
         $this->assertNotNull($menu->photo);
         Storage::disk('public')->assertExists($menu->photo);
     }

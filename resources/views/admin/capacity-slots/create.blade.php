@@ -30,8 +30,8 @@
             </div>
         </div>
         <div>
-            <label for="max_capacity" class="block font-semibold">Kapasitas Maksimal</label>
-            <input type="number" id="max_capacity" name="max_capacity" value="{{ old('max_capacity') }}" min="1" required class="w-full border rounded px-3 py-2">
+            <label for="max_quota" class="block font-semibold">Kapasitas Maksimal</label>
+            <input type="number" id="max_quota" name="max_quota" value="{{ old('max_quota') }}" min="1" required class="w-full border rounded px-3 py-2">
         </div>
         <div>
             <label for="estimated_walk_in" class="block font-semibold">Estimasi Walk-in</label>

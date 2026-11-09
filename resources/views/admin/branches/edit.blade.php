@@ -17,12 +17,12 @@
         </div>
         <div class="flex gap-4">
             <div>
-                <label for="opening_time" class="block font-semibold">Jam Buka</label>
-                <input type="time" id="opening_time" name="opening_time" value="{{ old('opening_time', $branch->opening_time) }}" required class="border rounded px-3 py-2">
+                <label for="opens_at" class="block font-semibold">Jam Buka</label>
+                <input type="time" id="opens_at" name="opens_at" value="{{ old('opens_at', $branch->opens_at) }}" required class="border rounded px-3 py-2">
             </div>
             <div>
-                <label for="closing_time" class="block font-semibold">Jam Tutup</label>
-                <input type="time" id="closing_time" name="closing_time" value="{{ old('closing_time', $branch->closing_time) }}" required class="border rounded px-3 py-2">
+                <label for="closes_at" class="block font-semibold">Jam Tutup</label>
+                <input type="time" id="closes_at" name="closes_at" value="{{ old('closes_at', $branch->closes_at) }}" required class="border rounded px-3 py-2">
             </div>
         </div>
         <div>
@@ -38,8 +38,8 @@
             <input type="email" id="pic_email" name="pic_email" value="{{ old('pic_email', $branch->pic_email) }}" class="w-full border rounded px-3 py-2">
         </div>
         <div>
-            <label for="google_maps_link" class="block font-semibold">Tautan Google Maps (opsional)</label>
-            <input type="url" id="google_maps_link" name="google_maps_link" value="{{ old('google_maps_link', $branch->google_maps_link) }}" class="w-full border rounded px-3 py-2">
+            <label for="maps_url" class="block font-semibold">Tautan Google Maps (opsional)</label>
+            <input type="url" id="maps_url" name="maps_url" value="{{ old('maps_url', $branch->maps_url) }}" class="w-full border rounded px-3 py-2">
         </div>
         <div class="flex gap-2">
             <button type="submit" class="bg-stone-900 text-white px-4 py-2 rounded">Simpan Perubahan</button>

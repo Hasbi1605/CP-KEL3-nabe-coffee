@@ -19,9 +19,7 @@ class CapacitySlotCrudTest extends TestCase
 
     private function branchAdmin(): User
     {
-        $branch = Branch::factory()->create();
-
-        return User::factory()->branchAdmin($branch->id)->create();
+        return User::factory()->branchAdmin()->create();
     }
 
     /** @return array<string, mixed> */
@@ -32,7 +30,7 @@ class CapacitySlotCrudTest extends TestCase
             'date' => now()->addDay()->format('Y-m-d'),
             'start_time' => '09:00',
             'end_time' => '12:00',
-            'max_capacity' => 30,
+            'max_quota' => 30,
             'estimated_walk_in' => 5,
         ];
     }
@@ -47,7 +45,7 @@ class CapacitySlotCrudTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('capacity_slots', [
             'branch_id' => $branch->id,
-            'max_capacity' => 30,
+            'max_quota' => 30,
         ]);
     }
 
@@ -59,7 +57,7 @@ class CapacitySlotCrudTest extends TestCase
             ->assertOk()->assertSee($slot->branch->name);
 
         $this->actingAs($this->owner())->get(route('admin.capacity-slots.show', $slot))
-            ->assertOk()->assertSee((string) $slot->max_capacity);
+            ->assertOk()->assertSee((string) $slot->max_quota);
     }
 
     public function test_owner_dapat_mengubah_kuota(): void
@@ -68,11 +66,11 @@ class CapacitySlotCrudTest extends TestCase
 
         $response = $this->actingAs($this->owner())
             ->put(route('admin.capacity-slots.update', $slot), array_merge($this->validData($slot->branch_id), [
-                'max_capacity' => 50,
+                'max_quota' => 50,
             ]));
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('capacity_slots', ['id' => $slot->id, 'max_capacity' => 50]);
+        $this->assertDatabaseHas('capacity_slots', ['id' => $slot->id, 'max_quota' => 50]);
     }
 
     public function test_owner_dapat_menghapus_kuota(): void
@@ -115,13 +113,32 @@ class CapacitySlotCrudTest extends TestCase
             ->post(route('admin.capacity-slots.store'), array_merge($this->validData($branch->id), [
                 'start_time' => '12:00',
                 'end_time' => '09:00',
-                'max_capacity' => 0,
+                'max_quota' => 0,
             ]));
 
-        $response->assertSessionHasErrors(['start_time', 'end_time', 'max_capacity']);
+        $response->assertSessionHasErrors(['start_time', 'end_time', 'max_quota']);
 
         $errors = session('errors')->getBag('default');
         $this->assertStringContainsString('harus setelah jam mulai', $errors->first('end_time'));
-        $this->assertStringContainsString('minimal 1', $errors->first('max_capacity'));
+        $this->assertStringContainsString('minimal 1', $errors->first('max_quota'));
+    }
+
+    public function test_kuota_duplikat_ditolak(): void
+    {
+        $branch = Branch::factory()->create();
+        $data = $this->validData($branch->id);
+
+        $this->actingAs($this->owner())
+            ->post(route('admin.capacity-slots.store'), $data)
+            ->assertRedirect();
+
+        $response = $this->actingAs($this->owner())
+            ->post(route('admin.capacity-slots.store'), $data);
+
+        $response->assertSessionHasErrors(['branch_id']);
+        $this->assertStringContainsString(
+            'sudah ada',
+            session('errors')->getBag('default')->first('branch_id')
+        );
     }
 }

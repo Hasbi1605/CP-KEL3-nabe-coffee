@@ -23,7 +23,7 @@
             <label for="category" class="block font-semibold">Kategori</label>
             <select id="category" name="category" required class="w-full border rounded px-3 py-2">
                 @foreach (\App\Models\Menu::CATEGORIES as $category)
-                    <option value="{{ $category }}" @selected(old('category', $menu->category) === $category)>{{ $category }}</option>
+                    <option value="{{ $category }}" @selected(old('category', $menu->category) === $category)>{{ \App\Models\Menu::CATEGORY_LABELS[$category] }}</option>
                 @endforeach
             </select>
         </div>
@@ -40,7 +40,7 @@
         </div>
         <div>
             <label for="tags" class="block font-semibold">Tag (opsional, pisahkan dengan koma)</label>
-            <input type="text" id="tags" name="tags" value="{{ old('tags', $menu->tags) }}" class="w-full border rounded px-3 py-2">
+            <input type="text" id="tags" name="tags" value="{{ old('tags', is_array($menu->tags) ? implode(', ', $menu->tags) : $menu->tags) }}" class="w-full border rounded px-3 py-2">
         </div>
         <div class="flex gap-4">
             <label class="flex items-center gap-2"><input type="checkbox" name="is_best_seller" value="1" @checked(old('is_best_seller', $menu->is_best_seller))> Terlaris</label>

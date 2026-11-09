@@ -18,7 +18,28 @@ class MenuRequest extends FormRequest
     }
 
     /**
+     * Form mengirim tag sebagai teks dipisah koma; skema resmi (1.1)
+     * menyimpan tags sebagai JSON (array). Ubah dulu sebelum validasi.
+     */
+    protected function prepareForValidation(): void
+    {
+        $tags = $this->input('tags');
+
+        if (is_string($tags)) {
+            $this->merge([
+                'tags' => array_values(array_filter(array_map(
+                    fn (string $tag): string => trim($tag),
+                    explode(',', $tags)
+                ))),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
+     *
+     * Kategori mengikuti enum resmi (1.1): coffee, non_coffee,
+     * heavy_meal, snack.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -30,7 +51,8 @@ class MenuRequest extends FormRequest
             'category' => ['required', Rule::in(Menu::CATEGORIES)],
             'price' => ['required', 'integer', 'min:0'],
             'photo' => ['nullable', 'image', 'max:2048'],
-            'tags' => ['nullable', 'string', 'max:500'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'max:100'],
             'is_best_seller' => ['sometimes', 'boolean'],
             'is_available' => ['sometimes', 'boolean'],
         ];
@@ -53,7 +75,8 @@ class MenuRequest extends FormRequest
             'price.min' => 'Harga menu tidak boleh kurang dari 0.',
             'photo.image' => 'Foto menu harus berupa gambar.',
             'photo.max' => 'Ukuran foto menu maksimal 2 MB.',
-            'tags.max' => 'Tag menu maksimal 500 karakter.',
+            'tags.array' => 'Tag menu harus berupa daftar tag.',
+            'tags.*.max' => 'Setiap tag menu maksimal 100 karakter.',
             'is_best_seller.boolean' => 'Penanda terlaris harus berupa ya atau tidak.',
             'is_available.boolean' => 'Penanda ketersediaan harus berupa ya atau tidak.',
         ];

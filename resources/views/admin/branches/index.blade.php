@@ -25,7 +25,7 @@
                     <tr class="border-b">
                         <td class="px-4 py-2">{{ $branch->name }}</td>
                         <td class="px-4 py-2">{{ $branch->address }}</td>
-                        <td class="px-4 py-2">{{ $branch->opening_time }} - {{ $branch->closing_time }}</td>
+                        <td class="px-4 py-2">{{ $branch->opens_at }} - {{ $branch->closes_at }}</td>
                         <td class="px-4 py-2">{{ $branch->admin_whatsapp }}</td>
                         <td class="px-4 py-2">
                             <a href="{{ route('admin.branches.show', $branch) }}" class="underline">Lihat</a>

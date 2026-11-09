@@ -27,7 +27,7 @@
                         <td class="px-4 py-2">{{ $slot->branch->name }}</td>
                         <td class="px-4 py-2">{{ $slot->date->format('d-m-Y') }}</td>
                         <td class="px-4 py-2">{{ $slot->start_time }} - {{ $slot->end_time }}</td>
-                        <td class="px-4 py-2">{{ $slot->max_capacity }}</td>
+                        <td class="px-4 py-2">{{ $slot->max_quota }}</td>
                         <td class="px-4 py-2">{{ $slot->estimated_walk_in }}</td>
                         <td class="px-4 py-2">
                             <a href="{{ route('admin.capacity-slots.show', $slot) }}" class="underline">Lihat</a>

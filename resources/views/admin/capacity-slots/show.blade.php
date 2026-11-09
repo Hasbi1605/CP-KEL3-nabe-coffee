@@ -8,7 +8,7 @@
         <div><dt class="font-semibold">Cabang</dt><dd>{{ $slot->branch->name }}</dd></div>
         <div><dt class="font-semibold">Tanggal</dt><dd>{{ $slot->date->format('d-m-Y') }}</dd></div>
         <div><dt class="font-semibold">Jam</dt><dd>{{ $slot->start_time }} - {{ $slot->end_time }}</dd></div>
-        <div><dt class="font-semibold">Kapasitas Maksimal</dt><dd>{{ $slot->max_capacity }}</dd></div>
+        <div><dt class="font-semibold">Kapasitas Maksimal</dt><dd>{{ $slot->max_quota }}</dd></div>
         <div><dt class="font-semibold">Estimasi Walk-in</dt><dd>{{ $slot->estimated_walk_in }}</dd></div>
     </dl>
     <div class="flex gap-2 mt-4">

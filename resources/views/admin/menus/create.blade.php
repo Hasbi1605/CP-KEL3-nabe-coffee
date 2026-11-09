@@ -24,7 +24,7 @@
             <select id="category" name="category" required class="w-full border rounded px-3 py-2">
                 <option value="">-- Pilih Kategori --</option>
                 @foreach (\App\Models\Menu::CATEGORIES as $category)
-                    <option value="{{ $category }}" @selected(old('category') === $category)>{{ $category }}</option>
+                    <option value="{{ $category }}" @selected(old('category') === $category)>{{ \App\Models\Menu::CATEGORY_LABELS[$category] }}</option>
                 @endforeach
             </select>
         </div>

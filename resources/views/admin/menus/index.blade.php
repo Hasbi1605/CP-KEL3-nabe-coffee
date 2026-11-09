@@ -26,7 +26,7 @@
                     <tr class="border-b">
                         <td class="px-4 py-2">{{ $menu->name }} @if ($menu->is_best_seller)<span class="text-sm text-amber-700">(Terlaris)</span>@endif</td>
                         <td class="px-4 py-2">{{ $menu->branch->name }}</td>
-                        <td class="px-4 py-2">{{ $menu->category }}</td>
+                        <td class="px-4 py-2">{{ \App\Models\Menu::CATEGORY_LABELS[$menu->category] ?? $menu->category }}</td>
                         <td class="px-4 py-2">Rp{{ number_format($menu->price, 0, ',', '.') }}</td>
                         <td class="px-4 py-2">{{ $menu->is_available ? 'Ya' : 'Tidak' }}</td>
                         <td class="px-4 py-2">
