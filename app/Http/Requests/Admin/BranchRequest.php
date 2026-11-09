@@ -41,6 +41,13 @@ class BranchRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            // Lewati perbandingan jam kalau format salah satu field sudah
+            // gagal divalidasi; toMinutes() tidak tahan terhadap input
+            // yang bukan H:i (mis. 'bogus' -> Undefined array key 1).
+            if ($validator->errors()->has('opens_at') || $validator->errors()->has('closes_at')) {
+                return;
+            }
+
             $opening = $this->input('opens_at');
             $closing = $this->input('closes_at');
 
@@ -52,14 +59,22 @@ class BranchRequest extends FormRequest
             $openingMinutes = $this->toMinutes($opening);
             $closingMinutes = $closing === '00:00' ? 24 * 60 : $this->toMinutes($closing);
 
+            if ($openingMinutes === null || $closingMinutes === null) {
+                return;
+            }
+
             if ($openingMinutes >= $closingMinutes) {
                 $validator->errors()->add('closes_at', 'Jam tutup harus setelah jam buka.');
             }
         });
     }
 
-    private function toMinutes(string $time): int
+    private function toMinutes(string $time): ?int
     {
+        if (! preg_match('/^\d{1,2}:\d{2}$/', $time)) {
+            return null;
+        }
+
         [$hour, $minute] = explode(':', $time);
 
         return ((int) $hour * 60) + (int) $minute;

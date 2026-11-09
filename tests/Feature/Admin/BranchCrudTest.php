@@ -130,6 +130,27 @@ class BranchCrudTest extends TestCase
         $this->assertDatabaseHas('branches', ['name' => 'Kusumanegara']);
     }
 
+    public function test_jam_format_salah_kembali_sebagai_error_validasi_bukan_500(): void
+    {
+        $response = $this->actingAs($this->owner())
+            ->post(route('admin.branches.store'), array_merge($this->validData(), [
+                'opens_at' => 'bogus',
+            ]));
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('opens_at');
+        $this->assertDatabaseMissing('branches', ['name' => 'Kusumanegara']);
+
+        $response = $this->actingAs($this->owner())
+            ->post(route('admin.branches.store'), array_merge($this->validData(), [
+                'closes_at' => 'bogus',
+            ]));
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('closes_at');
+        $this->assertDatabaseMissing('branches', ['name' => 'Kusumanegara']);
+    }
+
     public function test_form_edit_menampilkan_jam_format_h_i_dan_whatsapp_tidak_wajib(): void
     {
         // Data hasil seed: jam tersimpan dengan detik, WhatsApp null.
