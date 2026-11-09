@@ -25,6 +25,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ## [Unreleased]
 
 ### Added
+- Validasi & logika login admin: form request, throttle 5x, logout, redirect sesuai peran, middleware role owner/admin cabang (1.3)
 - UI katalog menu dengan filter kategori, harga, pilihan cabang, kartu menu, dan detail menu dummy (3.3, #15)
 - Komponen Blade `branch-card` info cabang dengan integrasi Google Maps iframe dan tombol WhatsApp (3.2, #9)
 - Halaman company profile & landing page: hero, cerita brand, visi-misi, galeri suasana, promo, dan info 4 cabang (3.1, #19)
