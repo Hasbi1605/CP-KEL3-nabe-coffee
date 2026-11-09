@@ -25,8 +25,8 @@
             </div>
         </div>
         <div>
-            <label for="admin_whatsapp" class="block font-semibold">Nomor WhatsApp Admin</label>
-            <input type="text" id="admin_whatsapp" name="admin_whatsapp" value="{{ old('admin_whatsapp') }}" required class="w-full border rounded px-3 py-2">
+            <label for="admin_whatsapp" class="block font-semibold">Nomor WhatsApp Admin (opsional)</label>
+            <input type="text" id="admin_whatsapp" name="admin_whatsapp" value="{{ old('admin_whatsapp') }}" class="w-full border rounded px-3 py-2">
         </div>
         <div>
             <label for="telegram_chat_id" class="block font-semibold">ID Chat Telegram (opsional)</label>

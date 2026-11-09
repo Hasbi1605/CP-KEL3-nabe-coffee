@@ -129,4 +129,55 @@ class BranchCrudTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('branches', ['name' => 'Kusumanegara']);
     }
+
+    public function test_form_edit_menampilkan_jam_format_h_i_dan_whatsapp_tidak_wajib(): void
+    {
+        // Data hasil seed: jam tersimpan dengan detik, WhatsApp null.
+        $branch = Branch::factory()->create([
+            'opens_at' => '07:00:00',
+            'closes_at' => '23:59:59',
+            'admin_whatsapp' => null,
+        ]);
+
+        $response = $this->actingAs($this->owner())
+            ->get(route('admin.branches.edit', $branch));
+
+        $response->assertOk();
+        // Kontrak form dan request sama-sama H:i, bukan H:i:s.
+        $response->assertSee('value="07:00"', false);
+        $response->assertSee('value="23:59"', false);
+        $response->assertDontSee('value="07:00:00"', false);
+        $response->assertDontSee('value="23:59:59"', false);
+        $this->assertStringNotContainsString(
+            'name="admin_whatsapp" value="" required',
+            $response->getContent()
+        );
+    }
+
+    public function test_edit_data_hasil_seed_tanpa_mengubah_jam_atau_whatsapp(): void
+    {
+        $branch = Branch::factory()->create([
+            'name' => 'Gejayan',
+            'opens_at' => '07:00:00',
+            'closes_at' => '23:59:59',
+            'admin_whatsapp' => null,
+        ]);
+
+        // Kirim ulang persis seperti yang ditampilkan form (H:i),
+        // tanpa mengarang nomor WhatsApp.
+        $response = $this->actingAs($this->owner())
+            ->put(route('admin.branches.update', $branch), [
+                'name' => 'Gejayan Baru',
+                'address' => $branch->address,
+                'opens_at' => substr($branch->opens_at, 0, 5),
+                'closes_at' => substr($branch->closes_at, 0, 5),
+            ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('branches', [
+            'id' => $branch->id,
+            'name' => 'Gejayan Baru',
+            'admin_whatsapp' => null,
+        ]);
+    }
 }

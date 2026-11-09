@@ -18,16 +18,16 @@
         <div class="flex gap-4">
             <div>
                 <label for="opens_at" class="block font-semibold">Jam Buka</label>
-                <input type="time" id="opens_at" name="opens_at" value="{{ old('opens_at', $branch->opens_at) }}" required class="border rounded px-3 py-2">
+                <input type="time" id="opens_at" name="opens_at" value="{{ substr((string) old('opens_at', $branch->opens_at), 0, 5) }}" required class="border rounded px-3 py-2">
             </div>
             <div>
                 <label for="closes_at" class="block font-semibold">Jam Tutup</label>
-                <input type="time" id="closes_at" name="closes_at" value="{{ old('closes_at', $branch->closes_at) }}" required class="border rounded px-3 py-2">
+                <input type="time" id="closes_at" name="closes_at" value="{{ substr((string) old('closes_at', $branch->closes_at), 0, 5) }}" required class="border rounded px-3 py-2">
             </div>
         </div>
         <div>
-            <label for="admin_whatsapp" class="block font-semibold">Nomor WhatsApp Admin</label>
-            <input type="text" id="admin_whatsapp" name="admin_whatsapp" value="{{ old('admin_whatsapp', $branch->admin_whatsapp) }}" required class="w-full border rounded px-3 py-2">
+            <label for="admin_whatsapp" class="block font-semibold">Nomor WhatsApp Admin (opsional)</label>
+            <input type="text" id="admin_whatsapp" name="admin_whatsapp" value="{{ old('admin_whatsapp', $branch->admin_whatsapp) }}" class="w-full border rounded px-3 py-2">
         </div>
         <div>
             <label for="telegram_chat_id" class="block font-semibold">ID Chat Telegram (opsional)</label>
