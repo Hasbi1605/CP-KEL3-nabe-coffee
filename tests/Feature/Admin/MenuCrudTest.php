@@ -91,6 +91,38 @@ class MenuCrudTest extends TestCase
         Storage::disk('public')->assertExists($menu->fresh()->photo);
     }
 
+    public function test_foto_lama_tidak_hilang_saat_pembaruan_menu_gagal(): void
+    {
+        Storage::fake('public');
+        $menu = Menu::factory()->create([
+            'photo' => UploadedFile::fake()->image('lama.jpg')->store('menus', 'public'),
+        ]);
+
+        $oldPhoto = $menu->photo;
+
+        // Simulasikan kegagalan penyimpanan record setelah foto baru terunggah.
+        Menu::saving(function (): void {
+            throw new \RuntimeException('simulasi gagal simpan');
+        });
+
+        try {
+            $response = $this->actingAs($this->owner())
+                ->put(route('admin.menus.update', $menu), array_merge($this->validData($menu->branch_id), [
+                    'photo' => UploadedFile::fake()->image('baru.jpg'),
+                ]));
+
+            $response->assertServerError();
+        } finally {
+            Menu::flushEventListeners();
+        }
+
+        // Foto lama tetap utuh dan record masih menunjuk ke sana.
+        Storage::disk('public')->assertExists($oldPhoto);
+        $this->assertSame($oldPhoto, $menu->fresh()->photo);
+        // Foto baru yang sempat terunggah ikut dibersihkan.
+        $this->assertSame([$oldPhoto], Storage::disk('public')->allFiles('menus'));
+    }
+
     public function test_owner_dapat_menghapus_menu_dan_fotonya(): void
     {
         Storage::fake('public');

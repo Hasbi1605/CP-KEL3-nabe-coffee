@@ -65,15 +65,32 @@ class MenuController extends Controller
         $data['is_best_seller'] = $request->boolean('is_best_seller');
         $data['is_available'] = $request->boolean('is_available');
 
-        if ($request->hasFile('photo')) {
-            if ($menu->photo !== null) {
-                Storage::disk('public')->delete($menu->photo);
-            }
+        $oldPhoto = $menu->photo;
+        $newPhotoPath = null;
 
-            $data['photo'] = $request->file('photo')->store('menus', 'public');
+        if ($request->hasFile('photo')) {
+            // Simpan foto baru dulu. Foto lama baru dihapus setelah
+            // record berhasil diperbarui, supaya tidak hilang saat
+            // penyimpanan foto atau database gagal.
+            $newPhotoPath = $request->file('photo')->store('menus', 'public');
+            $data['photo'] = $newPhotoPath;
         }
 
-        $menu->update($data);
+        try {
+            $menu->update($data);
+        } catch (\Throwable $exception) {
+            // Record gagal diperbarui: bersihkan foto baru yang
+            // sempat terunggah, foto lama tetap utuh.
+            if ($newPhotoPath !== null) {
+                Storage::disk('public')->delete($newPhotoPath);
+            }
+
+            throw $exception;
+        }
+
+        if ($newPhotoPath !== null && $oldPhoto !== null) {
+            Storage::disk('public')->delete($oldPhoto);
+        }
 
         return redirect()
             ->route('admin.menus.show', $menu)
