@@ -24,10 +24,12 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 
 ## [Unreleased]
 
-
 ### Added
-- Layout publik (navbar, footer, topline), komponen Blade button/input/badge, halaman login admin, dan halaman Two-Factor Authentication (1.2, #3)
-- Skema database awal: tabel `menus`, `capacity_slots`, `promotions` + `branches` dan kolom `users` (`role`, `branch_id`, 2FA), beserta     model, factory, dan seeder (1.1, 1.4, #13)
+- UI katalog menu dengan filter kategori, harga, pilihan cabang, kartu menu, dan detail menu dummy (3.3, #15)
+- Komponen Blade `branch-card` info cabang dengan integrasi Google Maps iframe dan tombol WhatsApp (3.2, #9)
+- Halaman company profile & landing page: hero, cerita brand, visi-misi, galeri suasana, promo, dan info 4 cabang (3.1, #19)
+- Layout publik (navbar, footer, topline), komponen Blade button/input/badge, halaman login admin, dan halaman Two-Factor Authentication (1.2, #17)
+- Skema database awal: tabel `menus`, `capacity_slots`, `promotions` + `branches` dan kolom `users` (`role`, `branch_id`, 2FA), beserta model, factory, dan seeder (1.1, 1.4, #13)
 - Dokumen proyek: `AGENTS.md`, `CONTRIBUTING.md`, `docs/PRD.md`, dan `README.md` khusus Nabe Coffee
 - Template Pull Request, template issue tugas, dan `CODEOWNERS`
 - Tugas 1.5 Two-Factor Authentication (Google Authenticator) di sprint backlog, PRD, dan AGENTS.md
