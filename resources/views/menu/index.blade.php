@@ -9,9 +9,9 @@
     <body>
         <main>
             <section class="menu-hero">
-                <img src="{{ asset('images/menu/1461023058943-07fcbe16d735.jpg') }}" alt="Ilustrasi menu Nabe Coffee" class="size-full object-cover">
+                <img src="{{ asset('images/menu/1461023058943-07fcbe16d735.jpg') }}" alt="Ilustrasi menu Nabe Coffee" class="absolute inset-0 size-full object-cover">
                 <div class="menu-hero-overlay"></div>
-                <div class="menu-hero-content">
+                <div class="menu-hero-content relative z-10">
                     <p class="text-[11px] font-bold tracking-wider text-lime">NABE COFFEE · OUR MENU</p>
                     <h1 class="mt-5 max-w-4xl text-[clamp(60px,6vw,86px)] text-white">GOOD MOOD, GREAT MENU.</h1>
                     <p class="mt-5 max-w-xl text-sm leading-7 text-white">Your daily fuel, your little treat. Pilih yang pas buat harimu.</p>
