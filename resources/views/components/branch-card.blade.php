@@ -6,6 +6,7 @@
 
 @php
     // Default data 4 cabang Nabe Coffee (diambil dari NabeUI.tsx & PRD.md)
+    // admin_whatsapp dibiarkan null karena nomor resmi belum diberikan di PRD (D6)
     // Disiapkan agar mudah diganti jika mengambil langsung dari tabel `branches` (Issue #2).
     $defaultBranches = [
         [
@@ -17,11 +18,11 @@
             'hours' => '07.00–00.00',
             'opens_at' => '07:00:00',
             'closes_at' => '00:00:00',
-            'admin_whatsapp' => '08123456001',
+            'admin_whatsapp' => null,
             'image' => 'images/branches/kusumanegara.jpg',
             'image_placeholder' => '1442512595331-e89e73853f31',
             'is_main' => true,
-            'facilities' => ['WiFi', 'Colokan', 'Meeting room', 'Parkir & musholla'],
+            'facilities' => ['WiFi · konfirmasi', 'Colokan · konfirmasi', 'Meeting room · konfirmasi', 'Parkir & musholla · konfirmasi'],
             'maps_query' => 'Nabe Coffee Kusumanegara, Jl. Kusumanegara No.11, Semaki, Kec. Umbulharjo, Kota Yogyakarta, DIY 55166',
         ],
         [
@@ -33,11 +34,11 @@
             'hours' => '07.00–00.00',
             'opens_at' => '07:00:00',
             'closes_at' => '00:00:00',
-            'admin_whatsapp' => '08123456002',
+            'admin_whatsapp' => null,
             'image' => 'images/branches/demangan.jpg',
             'image_placeholder' => '1554118811-1e0d58224f24',
             'is_main' => false,
-            'facilities' => ['WiFi', 'Colokan', 'Meeting room', 'Parkir & musholla'],
+            'facilities' => ['WiFi · konfirmasi', 'Colokan · konfirmasi', 'Meeting room · konfirmasi', 'Parkir & musholla · konfirmasi'],
             'maps_query' => 'Nabe Coffee Demangan, Jl. Demangan Baru, Mrican, Caturtunggal, Kec. Depok, Kab. Sleman, DIY 55281',
         ],
         [
@@ -49,11 +50,11 @@
             'hours' => '07.00–00.00',
             'opens_at' => '07:00:00',
             'closes_at' => '00:00:00',
-            'admin_whatsapp' => '08123456003',
+            'admin_whatsapp' => null,
             'image' => 'images/branches/soragan.jpg',
             'image_placeholder' => '1501339847302-ac426a4a7cbb',
             'is_main' => false,
-            'facilities' => ['WiFi', 'Colokan', 'Meeting room', 'Parkir & musholla'],
+            'facilities' => ['WiFi · konfirmasi', 'Colokan · konfirmasi', 'Meeting room · konfirmasi', 'Parkir & musholla · konfirmasi'],
             'maps_query' => 'Nabe Coffee Soragan, Jl. Soragan No.29, Soragan, Ngestiharjo, Kec. Kasihan, Kab. Bantul, DIY 55184',
         ],
         [
@@ -65,11 +66,11 @@
             'hours' => '09.00–22.00',
             'opens_at' => '09:00:00',
             'closes_at' => '22:00:00',
-            'admin_whatsapp' => '08123456004',
+            'admin_whatsapp' => null,
             'image' => 'images/branches/batikan.jpg',
             'image_placeholder' => '1521017432531-fbd92d768814',
             'is_main' => false,
-            'facilities' => ['WiFi', 'Colokan', 'Meeting room', 'Parkir & musholla', 'Area padel · THE PADEL'],
+            'facilities' => ['WiFi · konfirmasi', 'Colokan · konfirmasi', 'Meeting room · konfirmasi', 'Parkir & musholla · konfirmasi', 'Area padel · THE PADEL'],
             'maps_query' => 'Nabe Coffee Batikan, Jl. Batikan No.9, Umbulharjo, Kota Yogyakarta, DIY 55161',
         ],
     ];
@@ -105,7 +106,7 @@
             }
         }
 
-        // WhatsApp admin & link wa.me
+        // WhatsApp admin & link wa.me (HANYA dibuat jika kontak valid dikonfigurasi)
         $itemIndex = $index ?? ($idx + 1);
         $paddedIndex = str_pad((string)$itemIndex, 2, '0', STR_PAD_LEFT);
 
@@ -113,19 +114,19 @@
             ? ($item['admin_whatsapp'] ?? $item['whatsapp'] ?? $item['phone'] ?? null)
             : ($item->admin_whatsapp ?? $item->whatsapp ?? $item->phone ?? null);
 
-        $waNumber = '62812345600' . $itemIndex;
-        if ($whatsapp) {
+        $waUrl = null;
+        if (!empty($whatsapp)) {
             $cleanWa = preg_replace('/[^0-9]/', '', (string)$whatsapp);
-            if (str_starts_with($cleanWa, '0')) {
-                $cleanWa = '62' . substr($cleanWa, 1);
-            } elseif (!str_starts_with($cleanWa, '62')) {
-                $cleanWa = '62' . $cleanWa;
+            if ($cleanWa !== '') {
+                if (str_starts_with($cleanWa, '0')) {
+                    $cleanWa = '62' . substr($cleanWa, 1);
+                } elseif (!str_starts_with($cleanWa, '62')) {
+                    $cleanWa = '62' . $cleanWa;
+                }
+                $waText = rawurlencode("Halo Nabe Coffee {$cleanName}, saya ingin menanyakan informasi tentang reservasi / outlet.");
+                $waUrl = "https://wa.me/{$cleanWa}?text={$waText}";
             }
-            $waNumber = $cleanWa;
         }
-
-        $waText = rawurlencode("Halo Nabe Coffee {$cleanName}, saya ingin menanyakan informasi tentang reservasi / outlet.");
-        $waUrl = "https://wa.me/{$waNumber}?text={$waText}";
 
         // Google Maps Query & Embed URL (tanpa API key)
         $mapsUrl = is_array($item) ? ($item['maps_url'] ?? null) : ($item->maps_url ?? null);
@@ -156,21 +157,35 @@
             $imageUrl = asset('images/branches/kusumanegara.jpg');
         }
 
-        $isMain = is_array($item) ? ($item['is_main'] ?? ($itemIndex === 1)) : ($item->is_main ?? ($itemIndex === 1));
+        // Label Cabang Utama murni dari data eksplisit (tidak mengikuti posisi kartu)
+        $isMain = is_array($item) ? (bool)($item['is_main'] ?? false) : (bool)($item->is_main ?? false);
 
-        // Fasilitas
+        // Fasilitas (pertahankan label "konfirmasi" sesuai prototipe dan PRD jika belum diverifikasi)
         $facilities = is_array($item) ? ($item['facilities'] ?? null) : ($item->facilities ?? null);
+        $hasUnconfirmedFacilities = false;
         if (!is_array($facilities)) {
-            $facilities = ['WiFi', 'Colokan', 'Meeting room', 'Parkir & musholla'];
+            $facilities = ['WiFi · konfirmasi', 'Colokan · konfirmasi', 'Meeting room · konfirmasi', 'Parkir & musholla · konfirmasi'];
             if (str_contains(strtolower($name), 'batikan')) {
                 $facilities[] = 'Area padel · THE PADEL';
+            }
+            $hasUnconfirmedFacilities = true;
+        } else {
+            foreach ($facilities as $fac) {
+                if (str_contains(strtolower((string)$fac), 'konfirmasi')) {
+                    $hasUnconfirmedFacilities = true;
+                    break;
+                }
             }
         }
 
         $eyebrowCity = is_array($item) ? ($item['city'] ?? 'YOGYAKARTA') : ($item->city ?? 'YOGYAKARTA');
     @endphp
 
-    <article {{ $isSingle ? $attributes->merge(['class' => 'outlet-detail bg-white border border-line rounded-[5px] overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-2']) : 'class=outlet-detail bg-white border border-line rounded-[5px] overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-2' }}>
+    @if($isSingle)
+        <article {{ $attributes->class(['outlet-detail bg-white border border-line rounded-[5px] overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-2']) }}>
+    @else
+        <article class="outlet-detail bg-white border border-line rounded-[5px] overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-2">
+    @endif
         {{-- Kolom Kiri: Foto Cabang --}}
         <div class="relative w-full h-64 sm:h-80 lg:h-full min-h-[260px] lg:min-h-[460px] bg-soft overflow-hidden">
             <img
@@ -218,16 +233,22 @@
                 </div>
 
                 {{-- Fasilitas Cabang --}}
-                <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
+                <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
                     @foreach($facilities as $facility)
                         @php
-                            $isPadel = str_contains(strtolower($facility), 'padel');
+                            $isPadel = str_contains(strtolower((string)$facility), 'padel');
+                            $isUnconfirmed = str_contains(strtolower((string)$facility), 'konfirmasi');
                         @endphp
-                        <span class="{{ $isPadel ? 'bg-sky text-primary-dark font-bold' : 'bg-soft text-ink font-medium' }} text-[10px] uppercase tracking-wide px-2.5 py-1 rounded-[4px]">
+                        <span class="{{ $isPadel ? 'bg-sky text-primary-dark font-bold' : ($isUnconfirmed ? 'bg-soft text-muted font-medium' : 'bg-soft text-ink font-medium') }} text-[10px] uppercase tracking-wide px-2.5 py-1 rounded-[4px] border border-line">
                             {{ $facility }}
                         </span>
                     @endforeach
                 </div>
+                @if($hasUnconfirmedFacilities)
+                    <p class="text-[11px] text-muted italic mb-3 font-sans">
+                        Detail ketersediaan fasilitas selain area padel belum diberikan dalam PRD.
+                    </p>
+                @endif
 
                 {{-- Embed Google Maps per Cabang (tanpa API key) --}}
                 <div class="my-4">
@@ -267,25 +288,38 @@
             {{-- Tombol Aksi: WhatsApp, Google Maps Direct & Reservasi --}}
             <div class="pt-4 border-t border-line flex flex-wrap items-center gap-3">
                 {{-- Tombol WhatsApp (wa.me) --}}
-                <a
-                    href="{{ $waUrl }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center gap-2 bg-primary hover:brightness-95 text-white font-bold text-[13px] py-3 px-5 rounded-[5px] transition focus-visible:outline-none"
-                >
-                    <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                    </svg>
-                    <span>Hubungi WhatsApp</span>
-                    <span aria-hidden="true">&nearr;</span>
-                </a>
+                @if($waUrl)
+                    <a
+                        href="{{ $waUrl }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center gap-2 bg-primary hover:brightness-95 text-white font-bold text-[13px] py-3 px-5 rounded-[5px] transition"
+                    >
+                        <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                        <span>Hubungi WhatsApp</span>
+                        <span aria-hidden="true">&nearr;</span>
+                    </a>
+                @else
+                    <span
+                        class="inline-flex items-center justify-center gap-2 bg-soft text-muted font-bold text-[13px] py-3 px-5 rounded-[5px] border border-line cursor-not-allowed select-none"
+                        aria-disabled="true"
+                        title="Nomor WhatsApp cabang belum dikonfigurasi"
+                    >
+                        <svg class="w-4 h-4 fill-current shrink-0 opacity-60" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                        <span>WhatsApp Belum Dikonfigurasi</span>
+                    </span>
+                @endif
 
                 {{-- Tautan Langsung Google Maps --}}
                 <a
                     href="{{ $directMapsUrl }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center gap-1.5 border border-line hover:border-primary text-ink hover:text-primary font-bold text-[12px] py-3 px-4 rounded-[5px] bg-white transition focus-visible:outline-none"
+                    class="inline-flex items-center justify-center gap-1.5 border border-line hover:border-primary text-ink hover:text-primary font-bold text-[12px] py-3 px-4 rounded-[5px] bg-white transition"
                 >
                     <span>Buka Google Maps</span>
                     <span aria-hidden="true">&nearr;</span>
@@ -294,7 +328,7 @@
                 {{-- Tombol Reservasi di Cabang Ini --}}
                 <a
                     href="#reservasi"
-                    class="inline-flex items-center justify-center gap-1.5 border border-primary text-primary hover:bg-primary hover:text-white font-bold text-[12px] py-3 px-4 rounded-[5px] transition focus-visible:outline-none"
+                    class="inline-flex items-center justify-center gap-1.5 border border-primary text-primary hover:bg-primary hover:text-white font-bold text-[12px] py-3 px-4 rounded-[5px] transition"
                 >
                     <span>Reservasi di Cabang Ini</span>
                     <span aria-hidden="true">&nearr;</span>
@@ -307,4 +341,3 @@
 @if(!$isSingle)
     </div>
 @endif
-
