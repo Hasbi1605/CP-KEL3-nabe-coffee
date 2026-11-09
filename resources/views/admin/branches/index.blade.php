@@ -10,7 +10,8 @@
     @if ($branches->isEmpty())
         <p>Belum ada cabang. Silakan tambah cabang baru.</p>
     @else
-        <table class="w-full bg-white border rounded">
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white border rounded">
             <thead>
                 <tr class="text-left border-b">
                     <th class="px-4 py-2">Nama</th>
@@ -35,6 +36,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
         <div class="mt-4">{{ $branches->links() }}</div>
     @endif
 @endsection

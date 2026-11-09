@@ -56,6 +56,17 @@ class BranchCrudTest extends TestCase
             ->assertOk()->assertSee('Demangan');
     }
 
+    public function test_daftar_cabang_punya_wadah_scroll_horizontal(): void
+    {
+        Branch::factory()->create(['name' => 'Demangan']);
+
+        // Tabel yang lebar harus menggulir di dalam wadahnya, bukan
+        // membuat seluruh halaman melebar di layar sempit.
+        $this->actingAs($this->owner())->get(route('admin.branches.index'))
+            ->assertOk()
+            ->assertSee('overflow-x-auto', false);
+    }
+
     public function test_owner_dapat_mengubah_cabang(): void
     {
         $branch = Branch::factory()->create();
