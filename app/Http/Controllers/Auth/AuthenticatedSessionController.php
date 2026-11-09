@@ -64,14 +64,24 @@ class AuthenticatedSessionController extends Controller
 
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
+        $request->session()->forget('two_factor.passed');
 
-        return redirect()->intended(self::redirectPathFor(Auth::user()));
+        $user = Auth::user();
+
+        // Tugas 1.5: setelah kata sandi benar, user wajib melewati 2FA
+        // sebelum dianggap lolos penuh oleh middleware `two-factor`.
+        if (empty($user->two_factor_secret) || $user->two_factor_confirmed_at === null) {
+            return redirect()->route('two-factor.setup');
+        }
+
+        return redirect()->route('two-factor.login');
     }
 
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
 
+        $request->session()->forget(['two_factor.passed', 'two_factor.pending']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

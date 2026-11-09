@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
+use App\Http\Controllers\Auth\TwoFactorResetController;
+use App\Http\Controllers\Auth\TwoFactorSetupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,13 +19,16 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
-Route::get('/two-factor-challenge', function () {
-    return view('auth.two-factor-challenge');
-})->name('two-factor.login');
+Route::middleware('auth')->group(function (): void {
+    Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'create'])->name('two-factor.login');
+    Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->name('two-factor.challenge.store');
+    Route::get('/two-factor-setup', [TwoFactorSetupController::class, 'create'])->name('two-factor.setup');
+    Route::post('/two-factor-setup', [TwoFactorSetupController::class, 'store'])->name('two-factor.setup.store');
 
-Route::get('/two-factor-setup', function () {
-    return view('auth.two-factor-setup');
-})->name('two-factor.setup');
+    Route::post('/admin/users/{user}/reset-two-factor', TwoFactorResetController::class)
+        ->middleware('role:owner')
+        ->name('admin.users.reset-two-factor');
+});
 
 Route::get('/menu', function () {
     $branches = [

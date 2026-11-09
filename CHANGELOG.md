@@ -25,6 +25,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ## [Unreleased]
 
 ### Added
+- Two-Factor Authentication Google Authenticator (TOTP): aktivasi QR + kode cadangan 8x sekali pakai, verifikasi tiap login, kunci 60 detik setelah 5x salah, reset oleh owner (1.5)
 - Validasi & logika login admin: form request, throttle 5x, logout, redirect sesuai peran, middleware role owner/admin cabang (1.3)
 - UI katalog menu dengan filter kategori, harga, pilihan cabang, kartu menu, dan detail menu dummy (3.3, #15)
 - Komponen Blade `branch-card` info cabang dengan integrasi Google Maps iframe dan tombol WhatsApp (3.2, #9)
