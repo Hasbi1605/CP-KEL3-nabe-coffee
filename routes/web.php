@@ -17,3 +17,9 @@ Route::get('/two-factor-challenge', function () {
 Route::get('/two-factor-setup', function () {
     return view('auth.two-factor-setup');
 })->name('two-factor.setup');
+
+Route::get('/admin/dashboard', function () {
+    $role = request('role') === 'branch' ? 'branch' : 'owner';
+
+    return view('admin.dashboard', ['role' => $role]);
+})->name('admin.dashboard');
