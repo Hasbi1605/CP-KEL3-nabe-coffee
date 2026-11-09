@@ -1,25 +1,27 @@
 @extends('layouts.app')
 
-@section('title', 'Nabe Coffee — Good Coffee. Good Company. (Yogyakarta)')
+@section('title', 'Nabe Coffee — Good Coffee. Good Company.')
 
 @section('content')
     <!-- 1. Hero Section -->
     <section class="relative bg-primary-dark text-white min-h-[580px] lg:min-h-[660px] flex items-center overflow-hidden">
-        <!-- Asset Photo Background -->
-        <div class="absolute inset-0 asset-photo">
+        <!-- Asset Photo Background (Absolute with Layered Handling) -->
+        <div class="absolute inset-0 z-0 overflow-hidden">
             <img
                 src="{{ asset('images/placeholders/hero-cafe.jpg') }}"
                 alt="Suasana Kafe Nabe Coffee"
                 class="w-full h-full object-cover object-center brightness-75 scale-105 transition-transform duration-1000 ease-out"
             />
-            <small>FOTO SUASANA · NABE COFFEE</small>
+            <small class="absolute bottom-2 left-2 text-[9px] font-semibold bg-ink/75 text-white px-2 py-0.5 rounded-[2px] tracking-wider uppercase z-10">
+                FOTO SUASANA &middot; NABE COFFEE
+            </small>
         </div>
 
         <!-- Gradient Shade Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-r from-primary-dark/95 via-primary-dark/75 to-primary-dark/25"></div>
+        <div class="absolute inset-0 z-0 bg-gradient-to-r from-primary-dark/95 via-primary-dark/75 to-primary-dark/25 pointer-events-none"></div>
 
         <!-- Hero Content Container -->
-        <div class="relative max-w-[1600px] mx-auto px-6 lg:px-[7.1%] py-20 lg:py-28 w-full">
+        <div class="relative z-10 max-w-[1600px] mx-auto px-6 lg:px-[7.1%] py-20 lg:py-28 w-full">
             <div class="max-w-[820px]">
                 <span class="eyebrow text-lime mb-4 tracking-[2px]">
                     YOUR EVERYDAY HAPPY PLACE &middot; YOGYAKARTA
@@ -38,7 +40,7 @@
 
                 <!-- Hero Actions -->
                 <div class="flex flex-wrap items-center gap-4">
-                    <x-button variant="lime" href="#locations" class="text-[13px] py-4 px-8 uppercase tracking-wider">
+                    <x-button variant="lime" href="#outlet" class="text-[13px] py-4 px-8 uppercase tracking-wider">
                         Reservasi Sekarang <span>↗</span>
                     </x-button>
                     <x-button variant="glass" href="#about" class="text-[13px] py-4 px-8 uppercase tracking-wider">
@@ -47,8 +49,8 @@
                 </div>
             </div>
 
-            <!-- Hero Circular Sticker Badge (Desktop only) -->
-            <div class="hidden lg:flex hero-sticker pointer-events-none select-none">
+            <!-- Hero Circular Sticker Badge (Desktop only: hidden lg:flex) -->
+            <div class="hidden lg:flex flex-col items-center justify-center hero-sticker pointer-events-none select-none">
                 <span class="text-[10px] font-bold tracking-wider uppercase">COFFEE &amp;</span>
                 <strong class="font-display text-4xl leading-none my-1 tracking-tight">
                     GOOD<br />TIMES!
@@ -211,9 +213,9 @@
         </div>
     </section>
 
-    <!-- 5. Section Promo (Data Dummy CMS - Siap Integrasi Tugas 3.4) -->
+    <!-- 5. Section Promo (Pratinjau Konsep CMS - Siap Integrasi Tugas 3.4) -->
     <section id="promo" class="py-20 lg:py-28 px-6 lg:px-[7.1%] max-w-[1600px] mx-auto">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>
                 <span class="eyebrow text-primary mb-2">PROMO &amp; SPESIAL BULAN INI</span>
                 <h2 class="text-ink text-4xl sm:text-5xl lg:text-[52px] font-display font-bold uppercase leading-[0.95]">
@@ -222,8 +224,19 @@
             </div>
             <span class="inline-flex items-center gap-2 text-muted text-[12px] font-bold">
                 <span class="w-2 h-2 rounded-full bg-gold"></span>
-                Berlaku di Semua Cabang Nabe Coffee
+                Konsep Promo Cabang Nabe Coffee (Pratinjau)
             </span>
+        </div>
+
+        <!-- Penanda Konsep / Dummy Promo (Sesuai Catatan Prototipe & Review PM) -->
+        <div class="mb-8 p-3.5 bg-soft border border-line rounded-[5px] flex items-center justify-between gap-4 text-[12px] text-muted">
+            <div class="flex items-center gap-2.5">
+                <span class="px-2 py-0.5 rounded-[3px] bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-wider">
+                    Pratinjau Konsep
+                </span>
+                <span>Data promosi di bawah merupakan pratinjau tampilan. Program promo resmi dan periode aktif akan dikelola via CMS (Tugas 3.4).</span>
+            </div>
+            <span class="hidden md:inline-block text-[11px] font-mono text-muted/70">PROMO-PREVIEW</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -240,7 +253,7 @@
                 <div class="p-6 sm:p-8 sm:w-3/5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-3">
-                            <x-badge variant="gold">Diskon 20%</x-badge>
+                            <x-badge variant="gold">Contoh Promo &middot; Diskon 20%</x-badge>
                             <span class="text-muted text-[11px] font-mono">07.00 &ndash; 10.00 WIB</span>
                         </div>
                         <h3 class="font-display font-bold text-2xl text-ink uppercase tracking-tight mb-2">
@@ -252,7 +265,7 @@
                     </div>
                     <div class="pt-4 border-t border-line/60 flex items-center justify-between text-[11px] text-muted">
                         <span>Seluruh Cabang</span>
-                        <a href="#locations" class="text-primary font-bold hover:underline">Reservasi Slot &rarr;</a>
+                        <a href="#outlet" class="text-primary font-bold hover:underline">Reservasi Slot &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -270,7 +283,7 @@
                 <div class="p-6 sm:p-8 sm:w-3/5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-3">
-                            <x-badge variant="sage">Free Pitcher</x-badge>
+                            <x-badge variant="sage">Contoh Promo &middot; Free Pitcher</x-badge>
                             <span class="text-muted text-[11px] font-mono">Min. 8 Orang</span>
                         </div>
                         <h3 class="font-display font-bold text-2xl text-ink uppercase tracking-tight mb-2">
@@ -282,7 +295,7 @@
                     </div>
                     <div class="pt-4 border-t border-line/60 flex items-center justify-between text-[11px] text-muted">
                         <span>Prioritas Rombongan</span>
-                        <a href="#locations" class="text-primary font-bold hover:underline">Reservasi Sekarang &rarr;</a>
+                        <a href="#outlet" class="text-primary font-bold hover:underline">Reservasi Sekarang &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -290,7 +303,8 @@
     </section>
 
     <!-- 6. Section Informasi 4 Cabang (Siap Terintegrasi Tugas 3.2) -->
-    <section id="locations" class="border-t border-line bg-cream py-20 lg:py-28 px-6 lg:px-[7.1%]">
+    <section id="outlet" class="border-t border-line bg-cream py-20 lg:py-28 px-6 lg:px-[7.1%] relative">
+        <span id="locations" class="sr-only"></span>
         <div class="max-w-[1600px] mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
                 <div>
@@ -338,14 +352,9 @@
                         >
                             Peta Lokasi ↗
                         </a>
-                        <a
-                            href="https://wa.me/6281234567890"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-[11px] font-bold text-muted hover:text-ink"
-                        >
-                            WhatsApp ↗
-                        </a>
+                        <span class="text-[11px] text-muted italic" title="Kontak resmi per cabang menunggu rilis admin">
+                            WhatsApp segera hadir
+                        </span>
                     </div>
                 </article>
 
@@ -381,14 +390,9 @@
                         >
                             Peta Lokasi ↗
                         </a>
-                        <a
-                            href="https://wa.me/6281234567890"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-[11px] font-bold text-muted hover:text-ink"
-                        >
-                            WhatsApp ↗
-                        </a>
+                        <span class="text-[11px] text-muted italic" title="Kontak resmi per cabang menunggu rilis admin">
+                            WhatsApp segera hadir
+                        </span>
                     </div>
                 </article>
 
@@ -424,14 +428,9 @@
                         >
                             Peta Lokasi ↗
                         </a>
-                        <a
-                            href="https://wa.me/6281234567890"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-[11px] font-bold text-muted hover:text-ink"
-                        >
-                            WhatsApp ↗
-                        </a>
+                        <span class="text-[11px] text-muted italic" title="Kontak resmi per cabang menunggu rilis admin">
+                            WhatsApp segera hadir
+                        </span>
                     </div>
                 </article>
 
@@ -467,14 +466,9 @@
                         >
                             Peta Lokasi ↗
                         </a>
-                        <a
-                            href="https://wa.me/6281234567890"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-[11px] font-bold text-muted hover:text-ink"
-                        >
-                            WhatsApp ↗
-                        </a>
+                        <span class="text-[11px] text-muted italic" title="Kontak resmi per cabang menunggu rilis admin">
+                            WhatsApp segera hadir
+                        </span>
                     </div>
                 </article>
             </div>

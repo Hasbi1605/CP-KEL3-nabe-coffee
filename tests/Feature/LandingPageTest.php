@@ -17,6 +17,8 @@ class LandingPageTest extends TestCase
         $response->assertSee('with Nabe.', false);
         $response->assertSee('YOUR EVERYDAY HAPPY PLACE &middot; YOGYAKARTA', false);
         $response->assertSee('Reservasi Sekarang', false);
+        $response->assertSee('href="#outlet"', false);
+        $response->assertSee('hidden lg:flex flex-col items-center justify-center hero-sticker', false);
 
         // 2. Info Strip
         $response->assertSee('4 Cabang di Jogja', false);
@@ -35,14 +37,19 @@ class LandingPageTest extends TestCase
 
         // 5. Section Promo
         $response->assertSee('PROMO &amp; SPESIAL BULAN INI', false);
+        $response->assertSee('Pratinjau Konsep', false);
+        $response->assertSee('Contoh Promo', false);
         $response->assertSee('Morning Fuel Combo', false);
         $response->assertSee('Group Table Gathering', false);
 
         // 6. Section 4 Cabang
+        $response->assertSee('id="outlet"', false);
         $response->assertSee('FIND YOUR NABE.', false);
         $response->assertSee('Kusumanegara', false);
         $response->assertSee('Demangan', false);
         $response->assertSee('Soragan', false);
         $response->assertSee('Batikan (THE PADEL)', false);
+        $response->assertSee('WhatsApp segera hadir', false);
+        $response->assertDontSee('6281234567890');
     }
 }

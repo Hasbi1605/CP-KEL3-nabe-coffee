@@ -49,14 +49,14 @@
             <a href="#contact" class="text-[11px] font-bold tracking-wider uppercase text-ink hover:text-primary transition-colors">
                 Kontak
             </a>
-            <x-button variant="primary" href="{{ url('/#reservation') }}" class="text-[11px] py-3 px-5 uppercase whitespace-nowrap tracking-wider">
+            <x-button variant="primary" href="{{ url('/#outlet') }}" class="text-[11px] py-3 px-5 uppercase whitespace-nowrap tracking-wider">
                 Reservasi Sekarang <span>↗</span>
             </x-button>
         </nav>
 
         <!-- Mobile Menu Toggle Button -->
         <div class="flex items-center gap-3 lg:hidden">
-            <x-button variant="primary" href="{{ url('/#reservation') }}" class="text-[10px] py-2 px-3 uppercase tracking-wider">
+            <x-button variant="primary" href="{{ url('/#outlet') }}" class="text-[10px] py-2 px-3 uppercase tracking-wider">
                 Reservasi ↗
             </x-button>
             <button
@@ -147,12 +147,12 @@
                     Buka setiap hari · 07.00 – 00.00 WIB
                 </p>
                 <a
-                    href="https://wa.me/6281234567890"
+                    href="https://www.instagram.com/nabecoffee.id/"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:underline"
                 >
-                    <span>Hubungi Admin Cabang</span>
+                    <span>Hubungi via Instagram</span>
                     <span>↗</span>
                 </a>
             </div>
@@ -168,7 +168,7 @@
                         <a href="{{ url('/#menu') }}" class="text-ink hover:text-primary transition-colors">Menu</a>
                     </li>
                     <li>
-                        <a href="{{ url('/#reservation') }}" class="text-ink hover:text-primary transition-colors">Reservasi Online</a>
+                        <a href="{{ url('/#outlet') }}" class="text-ink hover:text-primary transition-colors">Reservasi Online</a>
                     </li>
                     <li>
                         <a href="{{ url('/status') }}" class="text-ink hover:text-primary transition-colors">Cek Status Reservasi</a>
