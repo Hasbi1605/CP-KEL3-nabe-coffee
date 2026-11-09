@@ -44,7 +44,7 @@
         </div>
         <div class="flex gap-4">
             <label class="flex items-center gap-2"><input type="checkbox" name="is_best_seller" value="1" @checked(old('is_best_seller', $menu->is_best_seller))> Terlaris</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="is_available" value="1" @checked(old('is_available', $menu->is_available))> Tersedia</label>
+            <label class="flex items-center gap-2"><input type="hidden" name="is_available" value="0"><input type="checkbox" name="is_available" value="1" @checked(old('is_available', $menu->is_available))> Tersedia</label>
         </div>
         <div class="flex gap-2">
             <button type="submit" class="bg-stone-900 text-white px-4 py-2 rounded">Simpan Perubahan</button>

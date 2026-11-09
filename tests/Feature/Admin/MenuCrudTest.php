@@ -128,6 +128,60 @@ class MenuCrudTest extends TestCase
         $this->post(route('admin.menus.store'), $this->validData($branch->id))->assertForbidden();
     }
 
+    public function test_menu_baru_tanpa_centang_tersedia_tersimpan_tidak_tersedia(): void
+    {
+        $branch = Branch::factory()->create();
+
+        // Checkbox yang tidak dicentang tidak mengirim field sama sekali,
+        // seperti form browser; sebelumnya malah tersimpan tersedia.
+        $data = $this->validData($branch->id);
+        unset($data['is_available']);
+
+        $response = $this->actingAs($this->owner())
+            ->post(route('admin.menus.store'), $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('menus', [
+            'name' => 'Es Kopi Nabe',
+            'is_available' => false,
+        ]);
+    }
+
+    public function test_menu_baru_dengan_centang_tersedia_tersimpan_tersedia(): void
+    {
+        $branch = Branch::factory()->create();
+
+        // Form mengirim hidden input 0 lalu checkbox 1 saat dicentang.
+        $response = $this->actingAs($this->owner())
+            ->post(route('admin.menus.store'), array_merge(
+                $this->validData($branch->id),
+                ['is_available' => '1']
+            ));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('menus', [
+            'name' => 'Es Kopi Nabe',
+            'is_available' => true,
+        ]);
+    }
+
+    public function test_mengubah_menu_tanpa_centang_tersedia_menjadi_tidak_tersedia(): void
+    {
+        $menu = Menu::factory()->create(['is_available' => true]);
+
+        $data = $this->validData($menu->branch_id);
+        unset($data['is_available']);
+
+        $response = $this->actingAs($this->owner())
+            ->put(route('admin.menus.update', $menu), $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('menus', [
+            'id' => $menu->id,
+            'is_available' => false,
+        ]);
+    }
+
     public function test_validasi_gagal_menampilkan_pesan_bahasa_indonesia(): void
     {
         $branch = Branch::factory()->create();

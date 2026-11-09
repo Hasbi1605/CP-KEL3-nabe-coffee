@@ -30,7 +30,9 @@ class MenuController extends Controller
     {
         $data = $request->validated();
         $data['is_best_seller'] = $request->boolean('is_best_seller');
-        $data['is_available'] = $request->boolean('is_available', true);
+        // Checkbox yang tidak dicentang tidak mengirim field; itu berarti
+        // tidak tersedia, bukan tersedia (default form: hidden input 0).
+        $data['is_available'] = $request->boolean('is_available');
 
         if ($request->hasFile('photo')) {
             $data['photo'] = $request->file('photo')->store('menus', 'public');
