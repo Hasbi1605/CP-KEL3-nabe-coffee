@@ -60,6 +60,9 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class);
     }
 
+    // Toleransi enum/string disengaja untuk branch 3.4 yang berdiri
+    // sendiri; saat digabung dengan PR #22, deduplikasi ke versi enum
+    // UserRole dari #22 (sudah diverifikasi pada gabungan 48 tes).
     public function isOwner(): bool
     {
         $role = $this->role instanceof \BackedEnum ? $this->role->value : $this->role;
