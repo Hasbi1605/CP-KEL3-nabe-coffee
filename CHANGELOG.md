@@ -34,7 +34,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 - Keputusan hosting AWS EC2 Free Tier, dan diagram layer sistem untuk UTS (`docs/diagram-layer-sistem.png`)
 - `DESIGN.md` dari Figma Nabe Coffe, dan token warna & font di `resources/css/app.css`
 - Prototipe desain (React, acuan saja) di `docs/prototype/`, logo resmi Nabe di `docs/brand/` dan `public/images/brand/`
-- Layout admin (sidebar, topbar, menu per role), komponen Blade `stat-card`, dan halaman dashboard admin dengan data dummy (2.1, #NN)
+- Layout admin (sidebar, topbar, menu per role), komponen Blade `stat-card`, dan halaman dashboard admin dengan data dummy (2.1, #20)
 
 ### Changed
 - Warna `primary` diganti ke `#006d8b` mengikuti warna logo resmi Nabe
