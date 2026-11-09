@@ -44,7 +44,7 @@ class LandingPageTest extends TestCase
 
         // 6. Section 4 Cabang
         $response->assertSee('id="outlet"', false);
-        $response->assertSee('FIND YOUR NABE.', false);
+        $response->assertSee('INFO CABANG NABE COFFEE.', false); // judul default CMS 3.4 (sebelumnya FIND YOUR NABE.)
         $response->assertSee('Kusumanegara', false);
         $response->assertSee('Demangan', false);
         $response->assertSee('Soragan', false);

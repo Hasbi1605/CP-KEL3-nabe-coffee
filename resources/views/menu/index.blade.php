@@ -18,42 +18,52 @@
             <div>
                 <p class="text-[11px] font-bold tracking-wider text-primary">THE DAILY PICKS</p>
                 <h2 class="mt-3 text-[clamp(36px,3.7vw,56px)]">WHAT'S YOUR CRAVING?</h2>
-                <p class="mt-4 max-w-2xl text-sm leading-7 text-muted">Pilih cabang untuk melihat pilihan menu. Data katalog masih dummy dan akan disambungkan ke backend pada tugas 3.4.</p>
+                <p class="mt-4 max-w-2xl text-sm leading-7 text-muted">Pilih cabang untuk melihat pilihan menu. Katalog ini sekarang membaca data menu dari database (tugas 3.4).</p>
             </div>
 
-            <label class="flex min-w-0 flex-col gap-2 text-[11px] font-bold tracking-wider text-ink lg:w-72">
-                Pilih cabang
-                <select class="rounded-[5px] border border-line bg-white px-3 py-3 text-sm font-normal text-ink" aria-label="Pilih cabang">
-                    @foreach ($branches as $branch)
-                        <option value="{{ $branch }}">{{ $branch }}</option>
+            <form method="GET" action="{{ route('menu.index') }}" class="flex min-w-0 flex-col gap-2 text-[11px] font-bold tracking-wider text-ink lg:w-72">
+                <label for="branch_id">Pilih cabang</label>
+                <input type="hidden" name="category" value="{{ $filters['category'] ?? '' }}">
+                <input type="hidden" name="max_price" value="{{ $filters['max_price'] ?? '' }}">
+                <input type="hidden" name="search" value="{{ $filters['search'] ?? '' }}">
+                <select id="branch_id" name="branch_id" onchange="this.form.submit()" class="rounded-[5px] border border-line bg-white px-3 py-3 text-sm font-normal text-ink" aria-label="Pilih cabang">
+                    <option value="">Semua cabang</option>
+                    @foreach ($branchModels as $branch)
+                        <option value="{{ $branch->id }}" @selected(($filters['branch_id'] ?? null) == $branch->id)>{{ $branch->name }}</option>
                     @endforeach
                 </select>
-            </label>
+            </form>
         </div>
 
-        <div class="mt-8 grid gap-4 lg:grid-cols-[1fr_280px]">
+        <form method="GET" action="{{ route('menu.index') }}" class="mt-8 grid gap-4 lg:grid-cols-[1fr_280px_auto]">
+            <input type="hidden" name="branch_id" value="{{ $filters['branch_id'] ?? '' }}">
+            <input type="hidden" name="category" value="{{ $filters['category'] ?? '' }}">
             <label class="flex flex-col gap-2 text-[11px] font-bold tracking-wider text-ink">
                 Cari menu
-                <input id="menu-search" type="search" placeholder="Cari menu favoritmu" class="rounded-[5px] border border-line bg-white px-3 py-3 text-sm font-normal text-ink placeholder:text-muted">
+                <input id="menu-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari menu favoritmu" class="rounded-[5px] border border-line bg-white px-3 py-3 text-sm font-normal text-ink placeholder:text-muted">
             </label>
             <label class="flex flex-col gap-2 text-[11px] font-bold tracking-wider text-ink">
                 Rentang harga
-                <select id="menu-price-filter" class="rounded-[5px] border border-line bg-white px-3 py-3 text-sm font-normal text-ink">
-                    <option value="all">Semua harga</option>
-                    <option value="15000">Sampai Rp15.000</option>
-                    <option value="20000">Sampai Rp20.000</option>
-                    <option value="30000">Sampai Rp30.000</option>
+                <select id="menu-price-filter" name="max_price" class="rounded-[5px] border border-line bg-white px-3 py-3 text-sm font-normal text-ink">
+                    <option value="">Semua harga</option>
+                    @foreach ([15000 => 'Sampai Rp15.000', 20000 => 'Sampai Rp20.000', 30000 => 'Sampai Rp30.000'] as $price => $label)
+                        <option value="{{ $price }}" @selected(($filters['max_price'] ?? null) == $price)>{{ $label }}</option>
+                    @endforeach
                 </select>
             </label>
-        </div>
+            <div class="flex items-end">
+                <button type="submit" class="min-h-11 rounded-[5px] bg-primary px-5 text-[13px] font-bold text-white hover:brightness-95">Terapkan Filter</button>
+            </div>
+        </form>
 
         <div class="mt-7 flex gap-2 overflow-x-auto pb-2" role="tablist" aria-label="Kategori menu">
-            @foreach (['Semua', 'Kopi', 'Non-Kopi', 'Makanan Berat', 'Camilan'] as $category)
-                <button type="button" class="menu-category-tab {{ $category === 'Semua' ? 'is-active' : '' }} shrink-0 rounded-full border border-line px-4 py-2 text-[11px] font-bold tracking-wider" data-category-filter="{{ $category }}" aria-pressed="{{ $category === 'Semua' ? 'true' : 'false' }}">{{ $category }}</button>
+            <a href="{{ route('menu.index', array_filter(['branch_id' => $filters['branch_id'] ?? null, 'max_price' => $filters['max_price'] ?? null, 'search' => $filters['search'] ?? null])) }}" class="menu-category-tab {{ empty($filters['category']) ? 'is-active' : '' }} shrink-0 rounded-full border border-line px-4 py-2 text-[11px] font-bold tracking-wider" aria-pressed="{{ empty($filters['category']) ? 'true' : 'false' }}">Semua</a>
+            @foreach ($categories as $value => $label)
+                <a href="{{ route('menu.index', array_filter(['category' => $value, 'branch_id' => $filters['branch_id'] ?? null, 'max_price' => $filters['max_price'] ?? null, 'search' => $filters['search'] ?? null])) }}" class="menu-category-tab {{ ($filters['category'] ?? null) === $value ? 'is-active' : '' }} shrink-0 rounded-full border border-line px-4 py-2 text-[11px] font-bold tracking-wider" aria-pressed="{{ ($filters['category'] ?? null) === $value ? 'true' : 'false' }}">{{ $label }}</a>
             @endforeach
         </div>
 
-        <p class="mt-4 text-[13px] leading-6 text-muted">Harga, foto, ketersediaan, label Terlaris, dan promo masih contoh. Ketersediaan menu dapat berbeda di tiap cabang.</p>
+        <p class="mt-4 text-[13px] leading-6 text-muted">Harga, foto, ketersediaan, label Terlaris, dan penanda promo dibaca dari data cabang terpilih. Ketersediaan menu dapat berbeda di tiap cabang.</p>
 
         <div id="menu-grid" class="mt-9 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ($menus as $menu)

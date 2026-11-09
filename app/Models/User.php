@@ -59,4 +59,18 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Branch::class);
     }
+
+    public function isOwner(): bool
+    {
+        $role = $this->role instanceof \BackedEnum ? $this->role->value : $this->role;
+
+        return $role === 'owner';
+    }
+
+    public function isBranchAdmin(): bool
+    {
+        $role = $this->role instanceof \BackedEnum ? $this->role->value : $this->role;
+
+        return $role === 'branch_admin';
+    }
 }

@@ -25,6 +25,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ## [Unreleased]
 
 ### Added
+- Backend katalog menu dari database + CMS promosi owner (CRUD + banner) dan CMS teks info outlet/promo halaman utama (3.4)
 - UI katalog menu dengan filter kategori, harga, pilihan cabang, kartu menu, dan detail menu dummy (3.3, #15)
 - Komponen Blade `branch-card` info cabang dengan integrasi Google Maps iframe dan tombol WhatsApp (3.2, #9)
 - Halaman company profile & landing page: hero, cerita brand, visi-misi, galeri suasana, promo, dan info 4 cabang (3.1, #19)

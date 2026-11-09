@@ -219,8 +219,9 @@
             <div>
                 <span class="eyebrow text-primary mb-2">PROMO &amp; SPESIAL BULAN INI</span>
                 <h2 class="text-ink text-4xl sm:text-5xl lg:text-[52px] font-display font-bold uppercase leading-[0.95]">
-                    PENAWARAN HARI BAIKMU.
+                    {{ $homepageContent['promo_title'] ?? 'PENAWARAN HARI BAIKMU.' }}
                 </h2>
+                <p class="text-muted text-[13px] leading-relaxed mt-3 max-w-2xl">{{ $homepageContent['promo_text'] ?? '' }}</p>
             </div>
             <span class="inline-flex items-center gap-2 text-muted text-[12px] font-bold">
                 <span class="w-2 h-2 rounded-full bg-gold"></span>
@@ -310,8 +311,9 @@
                 <div>
                     <span class="eyebrow text-primary mb-2">OUR LOCATIONS</span>
                     <h2 class="text-ink text-4xl sm:text-5xl lg:text-[52px] font-display font-bold uppercase leading-[0.95]">
-                        FIND YOUR NABE.
+                        {{ $homepageContent['outlet_info_title'] ?? 'FIND YOUR NABE.' }}
                     </h2>
+                    <p class="text-muted text-[13px] leading-relaxed mt-3 max-w-2xl">{{ $homepageContent['outlet_info_text'] ?? '' }}</p>
                 </div>
                 <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[4px] bg-white border border-line text-[11px] font-bold text-ink uppercase tracking-wider">
                     4 Sudut Jogja &middot; Satu Cita Rasa
