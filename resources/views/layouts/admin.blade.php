@@ -13,6 +13,9 @@
     $branchName = $branchName ?? ($role === 'owner' ? 'Semua cabang' : 'Nabe Coffee Kusumanegara');
     $initials = $role === 'owner' ? 'OW' : 'AD';
 
+    // Selama masih mode demo, pertahankan ?role= di semua tautan menu
+    $demoParams = request()->only('role');
+
     // Ikon SVG garis (stroke 1.75), isi di dalam <svg>
     $icons = [
         'dashboard' => '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
@@ -71,18 +74,24 @@
             <a href="{{ url('/') }}" aria-label="Nabe Coffee, ke website">
                 <img src="{{ asset('images/brand/logo-nabe-160.png') }}" alt="Nabe Coffee" class="h-14 w-auto">
             </a>
-            <button type="button" data-sidebar-toggle aria-label="Tutup menu"
+            <button type="button" id="sidebar-close" aria-label="Tutup menu"
                     class="rounded-[5px] p-2 text-ink hover:bg-soft lg:hidden">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
         <p class="px-5 pb-3 text-[11px] font-bold tracking-wider text-muted">RUANG KERJA ADMIN</p>
 
+        {{-- Identitas user untuk layar kecil (di layar lebar ada di topbar) --}}
+        <div class="mx-3 mb-3 rounded-[5px] border border-line bg-cream px-3 py-2.5 sm:hidden">
+            <p class="text-sm font-bold leading-tight text-ink">{{ $userName }}</p>
+            <p class="text-[13px] leading-tight text-muted">{{ $branchName }}</p>
+        </div>
+
         <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4" aria-label="Menu admin">
             @foreach ($menuItems as $item)
                 @php $aktif = Route::has($item['route']); @endphp
                 @if ($aktif)
-                    <a href="{{ route($item['route']) }}"
+                    <a href="{{ route($item['route'], $demoParams) }}"
                        @if (request()->routeIs($item['route'])) aria-current="page" @endif
                        class="flex items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-bold {{ request()->routeIs($item['route']) ? 'bg-primary text-white' : 'text-ink hover:bg-soft' }}">
                         <svg class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{!! $icons[$item['icon']] !!}</svg>
@@ -116,7 +125,7 @@
     {{-- Area utama --}}
     <div class="flex min-w-0 flex-1 flex-col">
         <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-cream px-5 py-3.5 lg:px-8">
-            <button type="button" data-sidebar-toggle aria-expanded="false" aria-controls="admin-sidebar" aria-label="Buka menu"
+            <button type="button" id="sidebar-open" aria-expanded="false" aria-controls="admin-sidebar" aria-label="Buka menu"
                     class="rounded-[5px] border border-line bg-white p-2 text-ink hover:bg-soft lg:hidden">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -124,11 +133,11 @@
             <h1 class="min-w-0 flex-1 truncate text-3xl sm:text-4xl">@yield('page_title', 'Dashboard')</h1>
 
             <div class="flex items-center gap-3">
-                <div class="hidden text-right sm:block">
+                <div class="sr-only text-right sm:not-sr-only sm:block">
                     <p class="text-sm font-bold leading-tight text-ink">{{ $userName }}</p>
                     <p class="text-[13px] leading-tight text-muted">{{ $branchName }}</p>
                 </div>
-                <span class="grid h-10 w-10 place-items-center rounded-full bg-primary text-xs font-bold text-white" aria-hidden="true">{{ $initials }}</span>
+                <span class="grid h-10 w-10 place-items-center rounded-full bg-primary text-xs font-bold text-white" title="{{ $userName }}, {{ $branchName }}" aria-hidden="true">{{ $initials }}</span>
             </div>
         </header>
 
@@ -142,19 +151,44 @@
     (function () {
         var sidebar = document.getElementById('admin-sidebar');
         var backdrop = document.getElementById('admin-backdrop');
-        var buttons = document.querySelectorAll('[data-sidebar-toggle]');
-        function setOpen(open) {
+        var opener = document.getElementById('sidebar-open');
+        var closer = document.getElementById('sidebar-close');
+        var desktop = window.matchMedia('(min-width: 1024px)');
+        var open = false;
+
+        // Di HP, sidebar yang tertutup dikeluarkan dari urutan fokus keyboard (inert).
+        // Di desktop sidebar selalu tampil, jadi tidak boleh inert.
+        function render() {
+            var drawerOpen = open && !desktop.matches;
             sidebar.classList.toggle('-translate-x-full', !open);
-            backdrop.classList.toggle('hidden', !open);
-            buttons.forEach(function (b) { b.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+            backdrop.classList.toggle('hidden', !drawerOpen);
+            sidebar.inert = !desktop.matches && !open;
+            opener.setAttribute('aria-expanded', drawerOpen ? 'true' : 'false');
         }
-        buttons.forEach(function (b) {
-            b.addEventListener('click', function () {
-                setOpen(sidebar.classList.contains('-translate-x-full'));
-            });
-        });
+
+        function setOpen(value) {
+            var wasOpen = open;
+            open = value;
+            render();
+            if (value) {
+                closer.focus();
+            } else if (wasOpen) {
+                opener.focus(); // balikin fokus ke tombol pembuka
+            }
+        }
+
+        opener.addEventListener('click', function () { setOpen(true); });
+        closer.addEventListener('click', function () { setOpen(false); });
         backdrop.addEventListener('click', function () { setOpen(false); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && open) { setOpen(false); }
+        });
+        desktop.addEventListener('change', function () {
+            if (desktop.matches) { open = false; }
+            render();
+        });
+
+        render();
     })();
 </script>
 </body>
