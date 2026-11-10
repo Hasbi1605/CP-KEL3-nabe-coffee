@@ -213,7 +213,7 @@
         </div>
     </section>
 
-    <!-- 5. Section Promo (Pratinjau Konsep CMS - Siap Integrasi Tugas 3.4) -->
+    <!-- 5. Section Promo -->
     <section id="promo" class="py-20 lg:py-28 px-6 lg:px-[7.1%] max-w-[1600px] mx-auto">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>
@@ -223,83 +223,29 @@
                 </h2>
                 <p class="text-muted text-[13px] leading-relaxed mt-3 max-w-2xl">{{ $homepageContent['promo_text'] ?? '' }}</p>
             </div>
-            <span class="inline-flex items-center gap-2 text-muted text-[12px] font-bold">
-                <span class="w-2 h-2 rounded-full bg-gold"></span>
-                Konsep Promo Cabang Nabe Coffee (Pratinjau)
-            </span>
-        </div>
-
-        <!-- Penanda Konsep / Dummy Promo (Sesuai Catatan Prototipe & Review PM) -->
-        <div class="mb-8 p-3.5 bg-soft border border-line rounded-[5px] flex items-center justify-between gap-4 text-[12px] text-muted">
-            <div class="flex items-center gap-2.5">
-                <span class="px-2 py-0.5 rounded-[3px] bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-wider">
-                    Pratinjau Konsep
-                </span>
-                <span>Data promosi di bawah merupakan pratinjau tampilan. Program promo resmi dan periode aktif akan dikelola via CMS (Tugas 3.4).</span>
-            </div>
-            <span class="hidden md:inline-block text-[11px] font-mono text-muted/70">PROMO-PREVIEW</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Promo Card 1 -->
-            <div class="bg-white border border-line rounded-[5px] overflow-hidden flex flex-col sm:flex-row hover:border-primary/50 transition-colors shadow-sm">
-                <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto asset-photo">
-                    <img
-                        src="{{ asset('images/placeholders/promo-spesial.jpg') }}"
-                        alt="Morning Fuel Combo"
-                        class="w-full h-full object-cover"
-                    />
-                    <small>PROMO PAGI</small>
-                </div>
-                <div class="p-6 sm:p-8 sm:w-3/5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-3">
-                            <x-badge variant="gold">Contoh Promo &middot; Diskon 20%</x-badge>
-                            <span class="text-muted text-[11px] font-mono">07.00 &ndash; 10.00 WIB</span>
+            @forelse ($promotions as $promotion)
+                <article class="bg-white border border-line rounded-[5px] overflow-hidden flex flex-col sm:flex-row shadow-sm">
+                    @if ($promotion->banner)
+                        <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto asset-photo">
+                            <img src="{{ Storage::disk('public')->url($promotion->banner) }}" alt="{{ $promotion->title }}" class="w-full h-full object-cover" />
                         </div>
-                        <h3 class="font-display font-bold text-2xl text-ink uppercase tracking-tight mb-2">
-                            Morning Fuel Combo
-                        </h3>
-                        <p class="text-muted text-[12px] leading-relaxed mb-4">
-                            Mulai harimu dengan fokus. Pesan kopi favoritmu bersama pilihan croissant pastry hangat dengan potongan harga 20%.
-                        </p>
+                    @endif
+                    <div class="p-6 sm:p-8 flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-2xl text-ink uppercase tracking-tight mb-2">{{ $promotion->title }}</h3>
+                        <p class="text-muted text-[12px] leading-relaxed mb-4">{{ $promotion->description }}</p>
+                        <p class="text-muted text-[11px] mb-2">{{ $promotion->starts_at->format('d/m/Y H:i') }} &ndash; {{ $promotion->ends_at->format('d/m/Y H:i') }}</p>
+                        @if ($promotion->terms)
+                            <p class="text-muted text-[12px] leading-relaxed mb-4">Syarat: {{ $promotion->terms }}</p>
+                        @endif
+                        <p class="pt-4 border-t border-line/60 text-[11px] text-muted">{{ $promotion->branch?->name ?? 'Seluruh Cabang' }}</p>
                     </div>
-                    <div class="pt-4 border-t border-line/60 flex items-center justify-between text-[11px] text-muted">
-                        <span>Seluruh Cabang</span>
-                        <a href="#outlet" class="text-primary font-bold hover:underline">Reservasi Slot &rarr;</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Promo Card 2 -->
-            <div class="bg-white border border-line rounded-[5px] overflow-hidden flex flex-col sm:flex-row hover:border-primary/50 transition-colors shadow-sm">
-                <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto asset-photo">
-                    <img
-                        src="{{ asset('images/placeholders/about-story.jpg') }}"
-                        alt="Group Table Gathering"
-                        class="w-full h-full object-cover"
-                    />
-                    <small>PROMO ROMBONGAN</small>
-                </div>
-                <div class="p-6 sm:p-8 sm:w-3/5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-3">
-                            <x-badge variant="sage">Contoh Promo &middot; Free Pitcher</x-badge>
-                            <span class="text-muted text-[11px] font-mono">Min. 8 Orang</span>
-                        </div>
-                        <h3 class="font-display font-bold text-2xl text-ink uppercase tracking-tight mb-2">
-                            Group Table Gathering
-                        </h3>
-                        <p class="text-muted text-[12px] leading-relaxed mb-4">
-                            Pertemuan komunitas, rapat tim, atau kumpul keluarga jadi lebih hangat. Dapatkan free 1 pitcher signature iced tea untuk reservasi rombongan.
-                        </p>
-                    </div>
-                    <div class="pt-4 border-t border-line/60 flex items-center justify-between text-[11px] text-muted">
-                        <span>Prioritas Rombongan</span>
-                        <a href="#outlet" class="text-primary font-bold hover:underline">Reservasi Sekarang &rarr;</a>
-                    </div>
-                </div>
-            </div>
+                </article>
+            @empty
+                <p class="text-muted text-[13px]">Belum ada promo yang aktif saat ini.</p>
+            @endforelse
         </div>
     </section>
 

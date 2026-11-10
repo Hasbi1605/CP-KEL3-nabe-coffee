@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\MessageBag;
 use Tests\TestCase;
 
 class AuthUiTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_public_layout_renders_with_indonesian_navigation_and_tab_title(): void
     {
         $response = $this->get('/');

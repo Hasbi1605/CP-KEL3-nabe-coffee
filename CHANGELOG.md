@@ -41,6 +41,9 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 ### Changed
 - Warna `primary` diganti ke `#006d8b` mengikuti warna logo resmi Nabe
 
+### Fixed
+- Publikasi promo aktif dan penanganan kegagalan penyimpanan teks serta penghapusan banner CMS (3.4, #24)
+
 ## [0.0.0] - 2026-10-21
 
 ### Added

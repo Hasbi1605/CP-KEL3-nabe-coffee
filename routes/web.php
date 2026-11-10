@@ -3,11 +3,15 @@
 use App\Http\Controllers\Admin\HomepageContentController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Menu\MenuCatalogController;
+use App\Models\Promotion;
 use App\Services\Menu\HomepageContentService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (HomepageContentService $content) {
-    return view('welcome', ['homepageContent' => $content->all()]);
+    return view('welcome', [
+        'homepageContent' => $content->all(),
+        'promotions' => Promotion::activeNow()->with('branch')->orderByDesc('starts_at')->get(),
+    ]);
 })->name('home');
 
 Route::get('/login', function () {

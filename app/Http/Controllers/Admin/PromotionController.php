@@ -120,11 +120,11 @@ class PromotionController extends Controller
     public function destroy(Request $request, Promotion $promotion): RedirectResponse
     {
         $this->ensureOwner($request);
+        abort_unless($promotion->delete(), 500, 'Promo gagal dihapus.');
+
         if ($promotion->banner !== null) {
             Storage::disk('public')->delete($promotion->banner);
         }
-
-        $promotion->delete();
 
         return redirect()->route('admin.promotions.index')
             ->with('status', 'Promo berhasil dihapus.');

@@ -3,6 +3,8 @@
 namespace App\Services\Menu;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class HomepageContentService
 {
@@ -52,7 +54,14 @@ class HomepageContentService
             $clean[$key] = is_string($value) && trim($value) !== '' ? trim($value) : $default;
         }
 
-        Storage::disk('local')->put(self::FILE, json_encode($clean, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $disk = Storage::disk('local');
+        $temporary = self::FILE.'.'.Str::uuid().'.tmp';
+
+        if (! $disk->put($temporary, json_encode($clean, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) || ! $disk->move($temporary, self::FILE)) {
+            $disk->delete($temporary);
+
+            throw ValidationException::withMessages(['content' => 'Teks halaman utama gagal disimpan. Silakan coba lagi.']);
+        }
 
         return $clean;
     }

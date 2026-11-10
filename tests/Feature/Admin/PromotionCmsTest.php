@@ -89,6 +89,7 @@ class PromotionCmsTest extends TestCase
         $this->delete(route('admin.promotions.destroy', $promotion))
             ->assertRedirect(route('admin.promotions.index'));
         $this->assertDatabaseCount('promotions', 0);
+        Storage::disk('public')->assertMissing($promotion->banner);
     }
 
     public function test_promotion_validation_requires_valid_period(): void
@@ -174,5 +175,103 @@ class PromotionCmsTest extends TestCase
             ->assertOk()
             ->assertSee('INFO CABANG NABE COFFEE.')
             ->assertSee('PENAWARAN HARI BAIKMU.');
+    }
+
+    public function test_homepage_only_shows_active_promotions(): void
+    {
+        $branch = Branch::factory()->create(['name' => 'Cabang Istimewa']);
+        Promotion::factory()->create([
+            'title' => 'Promo <Aktif>', 'description' => 'Deskripsi <promo>', 'terms' => 'Syarat <khusus>',
+            'starts_at' => now()->subDay(), 'ends_at' => now()->addDay(),
+            'branch_id' => $branch->id, 'banner' => 'promotions/banner.jpg',
+        ]);
+        Promotion::factory()->create(['title' => 'Promo Mendatang', 'starts_at' => now()->addDay(), 'ends_at' => now()->addDays(2)]);
+        Promotion::factory()->create(['title' => 'Promo Berakhir', 'starts_at' => now()->subDays(2), 'ends_at' => now()->subDay()]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('Promo <Aktif>')->assertSee('Deskripsi <promo>')->assertSee('Syarat <khusus>')
+            ->assertSee('Cabang Istimewa')->assertSee('/storage/promotions/banner.jpg')
+            ->assertSee(now()->subDay()->format('d/m/Y H:i'))->assertSee(now()->addDay()->format('d/m/Y H:i'))
+            ->assertDontSee('Promo Mendatang')->assertDontSee('Promo Berakhir')
+            ->assertDontSee('Morning Fuel Combo')->assertDontSee('Pratinjau Konsep')
+            ->assertDontSee('Belum ada promo yang aktif saat ini.');
+    }
+
+    public function test_homepage_shows_empty_promotion_state(): void
+    {
+        $this->get('/')->assertOk()->assertSee('Belum ada promo yang aktif saat ini.')
+            ->assertDontSee('Morning Fuel Combo')->assertDontSee('Pratinjau Konsep');
+    }
+
+    public function test_failed_homepage_write_preserves_previous_content_and_input(): void
+    {
+        $disk = Storage::fake('local');
+        $disk->put('cms/homepage-content.json', '{"promo_title":"Judul lama"}');
+        $owner = $this->verifiedOwner();
+        $failingDisk = \Mockery::mock();
+        $failingDisk->shouldReceive('put')->once()->andReturnFalse();
+        $failingDisk->shouldReceive('delete')->once()->andReturnTrue();
+        Storage::shouldReceive('disk')->with('local')->andReturn($failingDisk);
+
+        $this->actingAs($owner)->from(route('admin.homepage-content.edit'))
+            ->put(route('admin.homepage-content.update'), ['content' => ['promo_title' => 'Judul baru']])
+            ->assertRedirect(route('admin.homepage-content.edit'))
+            ->assertSessionHasErrors('content')->assertSessionHasInput('content.promo_title', 'Judul baru')
+            ->assertSessionMissing('status');
+        $this->assertSame('{"promo_title":"Judul lama"}', $disk->get('cms/homepage-content.json'));
+    }
+
+    public function test_failed_homepage_replacement_preserves_previous_content_and_cleans_temporary_file(): void
+    {
+        $disk = Storage::fake('local');
+        $disk->put('cms/homepage-content.json', '{"promo_title":"Judul lama"}');
+        $owner = $this->verifiedOwner();
+        $failingDisk = \Mockery::mock($disk);
+        $failingDisk->shouldReceive('move')->once()->andReturnFalse();
+        Storage::shouldReceive('disk')->with('local')->andReturn($failingDisk);
+
+        $this->actingAs($owner)->from(route('admin.homepage-content.edit'))
+            ->put(route('admin.homepage-content.update'), ['content' => ['promo_title' => 'Judul baru']])
+            ->assertRedirect(route('admin.homepage-content.edit'))
+            ->assertSessionHasErrors('content')->assertSessionHasInput('content.promo_title', 'Judul baru')
+            ->assertSessionMissing('status');
+
+        $this->assertSame('{"promo_title":"Judul lama"}', $disk->get('cms/homepage-content.json'));
+        $this->assertSame(['cms/homepage-content.json'], $disk->allFiles('cms'));
+    }
+
+    public function test_failed_promotion_delete_preserves_record_and_banner(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('promotions/banner.jpg', 'banner');
+        $promotion = Promotion::factory()->create(['banner' => 'promotions/banner.jpg']);
+        $owner = $this->verifiedOwner();
+        Promotion::deleting(fn () => throw new \RuntimeException('Gagal menghapus promo'));
+
+        try {
+            $this->actingAs($owner)->delete(route('admin.promotions.destroy', $promotion))->assertServerError();
+            $this->assertDatabaseHas('promotions', ['id' => $promotion->id]);
+            Storage::disk('public')->assertExists('promotions/banner.jpg');
+        } finally {
+            Promotion::flushEventListeners();
+        }
+    }
+
+    public function test_canceled_promotion_delete_preserves_record_and_banner(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('promotions/banner.jpg', 'banner');
+        $promotion = Promotion::factory()->create(['banner' => 'promotions/banner.jpg']);
+        $owner = $this->verifiedOwner();
+        Promotion::deleting(fn () => false);
+
+        try {
+            $this->actingAs($owner)->delete(route('admin.promotions.destroy', $promotion))
+                ->assertServerError()->assertSessionMissing('status');
+            $this->assertDatabaseHas('promotions', ['id' => $promotion->id]);
+            Storage::disk('public')->assertExists('promotions/banner.jpg');
+        } finally {
+            Promotion::flushEventListeners();
+        }
     }
 }
