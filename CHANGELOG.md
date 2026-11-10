@@ -24,6 +24,9 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 
 ## [Unreleased]
 
+### Security
+- Reset 2FA wajib lolos verifikasi Owner dan hanya untuk Admin Cabang; konsumsi kode cadangan memakai transaksi dan row lock agar tidak dapat dipakai ulang oleh request stale (1.5, #23)
+
 ### Added
 - Two-Factor Authentication Google Authenticator (TOTP): aktivasi QR + kode cadangan 8x sekali pakai, verifikasi tiap login, kunci 60 detik setelah 5x salah, reset oleh owner (1.5)
 - Validasi & logika login admin: form request, throttle 5x, logout, redirect sesuai peran, middleware role owner/admin cabang (1.3)

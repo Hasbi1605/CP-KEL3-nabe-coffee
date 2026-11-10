@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/two-factor-setup', [TwoFactorSetupController::class, 'store'])->name('two-factor.setup.store');
 
     Route::post('/admin/users/{user}/reset-two-factor', TwoFactorResetController::class)
-        ->middleware('role:owner')
+        ->middleware(['role:owner', 'two-factor'])
         ->name('admin.users.reset-two-factor');
 });
 

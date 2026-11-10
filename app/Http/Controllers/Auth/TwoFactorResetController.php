@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Auth\TwoFactorService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class TwoFactorResetController extends Controller
 {
@@ -15,13 +14,11 @@ class TwoFactorResetController extends Controller
     /**
      * Owner me-reset 2FA admin cabang yang kehilangan akses.
      */
-    public function __invoke(Request $request, User $user): RedirectResponse
+    public function __invoke(User $user): RedirectResponse
     {
-        $this->twoFactor->resetForUser($user);
+        abort_unless($user->isBranchAdmin(), 403, 'Hanya 2FA Admin Cabang yang dapat direset.');
 
-        if ($request->user()?->is($user)) {
-            $request->session()->forget(['two_factor.passed', 'two_factor.pending']);
-        }
+        $this->twoFactor->resetForUser($user);
 
         return back()->with('status', "2FA untuk {$user->email} sudah direset. User itu wajib aktivasi ulang pas login berikutnya.");
     }

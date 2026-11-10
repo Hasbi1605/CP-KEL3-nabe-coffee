@@ -126,6 +126,34 @@ class TwoFactorTest extends TestCase
             ->assertSessionHasErrors('recovery_code');
     }
 
+    public function test_stale_requests_cannot_reuse_or_restore_consumed_recovery_codes(): void
+    {
+        $user = $this->userWithConfirmedTwoFactor();
+        $requestA = $user->fresh();
+        $requestB = $user->fresh();
+        [$firstCode, $secondCode] = $user->two_factor_recovery_codes;
+
+        $this->assertTrue($this->twoFactor->consumeRecoveryCode($requestA, $firstCode));
+        $this->assertFalse($this->twoFactor->consumeRecoveryCode($requestB, $firstCode));
+        $this->assertTrue($this->twoFactor->consumeRecoveryCode($requestB, $secondCode));
+
+        $remaining = $user->fresh()->two_factor_recovery_codes;
+        $this->assertCount(6, $remaining);
+        $this->assertNotContains($firstCode, $remaining);
+        $this->assertNotContains($secondCode, $remaining);
+    }
+
+    public function test_stale_user_cannot_consume_recovery_codes_after_reset(): void
+    {
+        $user = $this->userWithConfirmedTwoFactor();
+        $staleUser = $user->fresh();
+        $code = $user->two_factor_recovery_codes[0];
+        $this->twoFactor->resetForUser($user);
+
+        $this->assertFalse($this->twoFactor->consumeRecoveryCode($staleUser, $code));
+        $this->assertNull($user->fresh()->two_factor_recovery_codes);
+    }
+
     public function test_challenge_is_locked_for_sixty_seconds_after_five_wrong_codes(): void
     {
         $user = $this->userWithConfirmedTwoFactor();
@@ -177,7 +205,8 @@ class TwoFactorTest extends TestCase
             'branch_id' => Branch::factory(),
         ]);
 
-        $this->actingAs($owner)->post(route('admin.users.reset-two-factor', $admin))
+        $this->actingAs($owner)->withSession(['two_factor.passed' => true])
+            ->post(route('admin.users.reset-two-factor', $admin))
             ->assertRedirect()
             ->assertSessionHas('status');
 
@@ -195,6 +224,48 @@ class TwoFactorTest extends TestCase
             ->assertForbidden();
 
         $this->assertNotNull($owner->fresh()->two_factor_secret);
+    }
+
+    public function test_password_only_owner_cannot_reset_two_factor(): void
+    {
+        $owner = $this->userWithConfirmedTwoFactor();
+        $admin = $this->userWithConfirmedTwoFactor([
+            'email' => 'admin@nabe.coffee',
+            'role' => 'branch_admin',
+            'branch_id' => Branch::factory(),
+        ]);
+
+        $this->post('/login', ['email' => $owner->email, 'password' => 'password-benar'])
+            ->assertRedirect(route('two-factor.login'));
+
+        foreach ([$owner, $admin] as $target) {
+            $this->post(route('admin.users.reset-two-factor', $target))
+                ->assertRedirect(route('two-factor.login'))
+                ->assertSessionMissing('status');
+
+            $this->assertSame($target->two_factor_secret, $target->fresh()->two_factor_secret);
+            $this->assertSame($target->two_factor_recovery_codes, $target->fresh()->two_factor_recovery_codes);
+            $this->assertNotNull($target->fresh()->two_factor_confirmed_at);
+        }
+
+        $this->assertNotTrue(session('two_factor.passed'));
+    }
+
+    public function test_verified_owner_cannot_reset_own_or_another_owner_two_factor(): void
+    {
+        $owner = $this->userWithConfirmedTwoFactor();
+        $otherOwner = $this->userWithConfirmedTwoFactor(['email' => 'other-owner@nabe.coffee']);
+        $this->actingAs($owner)->withSession(['two_factor.passed' => true]);
+
+        foreach ([$owner, $otherOwner] as $target) {
+            $this->post(route('admin.users.reset-two-factor', $target))
+                ->assertForbidden()
+                ->assertSessionMissing('status');
+
+            $this->assertSame($target->two_factor_secret, $target->fresh()->two_factor_secret);
+            $this->assertSame($target->two_factor_recovery_codes, $target->fresh()->two_factor_recovery_codes);
+            $this->assertNotNull($target->fresh()->two_factor_confirmed_at);
+        }
     }
 
     public function test_guest_cannot_access_two_factor_pages(): void

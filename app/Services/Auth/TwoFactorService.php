@@ -58,18 +58,22 @@ class TwoFactorService
      */
     public function consumeRecoveryCode(User $user, string $code): bool
     {
-        $codes = collect($user->two_factor_recovery_codes ?? []);
-        $normalized = Str::upper(trim($code));
-        $index = $codes->search(fn (string $saved) => hash_equals(Str::upper($saved), $normalized));
+        return $user->getConnection()->transaction(function () use ($user, $code): bool {
+            // Reload under a row lock so stale requests cannot reuse consumed codes.
+            $currentUser = $user->newQuery()->lockForUpdate()->findOrFail($user->getKey());
+            $codes = collect($currentUser->two_factor_recovery_codes ?? []);
+            $normalized = Str::upper(trim($code));
+            $index = $codes->search(fn (string $saved) => hash_equals(Str::upper($saved), $normalized));
 
-        if ($index === false) {
-            return false;
-        }
+            if ($index === false) {
+                return false;
+            }
 
-        $codes->forget($index);
-        $user->forceFill(['two_factor_recovery_codes' => $codes->values()->all()])->save();
+            $codes->forget($index);
+            $currentUser->forceFill(['two_factor_recovery_codes' => $codes->values()->all()])->save();
 
-        return true;
+            return true;
+        });
     }
 
     public function resetForUser(User $user): void
