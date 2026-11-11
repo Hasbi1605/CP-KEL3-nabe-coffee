@@ -60,6 +60,17 @@ class CapacitySlotCrudTest extends TestCase
             ->assertOk()->assertSee((string) $slot->max_quota);
     }
 
+    public function test_daftar_kuota_punya_wadah_scroll_horizontal(): void
+    {
+        CapacitySlot::factory()->create();
+
+        // Tabel yang lebar harus menggulir di dalam wadahnya, bukan
+        // membuat seluruh halaman melebar di layar sempit.
+        $this->actingAs($this->owner())->get(route('admin.capacity-slots.index'))
+            ->assertOk()
+            ->assertSee('overflow-x-auto', false);
+    }
+
     public function test_owner_dapat_mengubah_kuota(): void
     {
         $slot = CapacitySlot::factory()->create();

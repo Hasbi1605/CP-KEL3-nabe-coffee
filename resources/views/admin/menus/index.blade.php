@@ -11,6 +11,7 @@
     @if ($menus->isEmpty())
         <p>Belum ada menu. Silakan tambah menu baru.</p>
     @else
+        <div class="overflow-x-auto">
         <table class="w-full bg-white border rounded">
             <thead>
                 <tr class="text-left border-b">
@@ -38,6 +39,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
         <div class="mt-4">{{ $menus->links() }}</div>
     @endif
 @endsection

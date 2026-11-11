@@ -97,6 +97,17 @@ class MenuCrudTest extends TestCase
             ->assertOk()->assertSee('Kopi Susu Gula Aren');
     }
 
+    public function test_daftar_menu_punya_wadah_scroll_horizontal(): void
+    {
+        Menu::factory()->create(['name' => 'Kopi Susu Gula Aren']);
+
+        // Tabel yang lebar harus menggulir di dalam wadahnya, bukan
+        // membuat seluruh halaman melebar di layar sempit.
+        $this->actingAs($this->owner())->get(route('admin.menus.index'))
+            ->assertOk()
+            ->assertSee('overflow-x-auto', false);
+    }
+
     public function test_owner_dapat_mengubah_menu_dan_foto_lama_dihapus(): void
     {
         Storage::fake('public');

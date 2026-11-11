@@ -11,6 +11,7 @@
     @if ($slots->isEmpty())
         <p>Belum ada kuota. Silakan tambah kuota baru.</p>
     @else
+        <div class="overflow-x-auto">
         <table class="w-full bg-white border rounded">
             <thead>
                 <tr class="text-left border-b">
@@ -38,6 +39,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
         <div class="mt-4">{{ $slots->links() }}</div>
     @endif
 @endsection
