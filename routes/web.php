@@ -18,6 +18,12 @@ Route::get('/two-factor-setup', function () {
     return view('auth.two-factor-setup');
 })->name('two-factor.setup');
 
+Route::get('/admin/dashboard', function () {
+    $role = request('role') === 'branch' ? 'branch' : 'owner';
+
+    return view('admin.dashboard', ['role' => $role]);
+})->name('admin.dashboard');
+
 Route::get('/menu', function () {
     $branches = [
         'Nabe Coffee Kusumanegara',
