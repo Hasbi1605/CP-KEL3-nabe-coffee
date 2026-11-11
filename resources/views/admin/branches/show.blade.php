@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Detail Cabang')
+@section('page_title', 'Detail Cabang')
 
 @section('content')
     <h1 class="text-2xl font-bold mb-4">{{ $branch->name }}</h1>

@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Daftar Cabang')
+@section('page_title', 'Daftar Cabang')
 
 @section('content')
     <div class="flex items-center justify-between mb-4">

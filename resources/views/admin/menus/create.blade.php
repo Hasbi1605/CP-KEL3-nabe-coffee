@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Tambah Menu')
+@section('page_title', 'Tambah Menu')
 
 @section('content')
     <h1 class="text-2xl font-bold mb-4">Tambah Menu</h1>

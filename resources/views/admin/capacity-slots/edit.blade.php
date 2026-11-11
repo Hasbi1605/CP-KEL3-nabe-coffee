@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Ubah Kuota')
+@section('page_title', 'Ubah Kuota')
 
 @section('content')
     <h1 class="text-2xl font-bold mb-4">Ubah Kuota</h1>

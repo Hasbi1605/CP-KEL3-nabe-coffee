@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Ubah Menu')
+@section('page_title', 'Ubah Menu')
 
 @section('content')
     <h1 class="text-2xl font-bold mb-4">Ubah Menu: {{ $menu->name }}</h1>
