@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\CapacitySlotController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\TwoFactorResetController;
@@ -28,6 +31,15 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/admin/users/{user}/reset-two-factor', TwoFactorResetController::class)
         ->middleware(['role:owner', 'two-factor'])
         ->name('admin.users.reset-two-factor');
+});
+
+Route::middleware(['owner', 'two-factor'])->prefix('admin')->name('admin.')->group(function (): void {
+    Route::resource('branches', BranchController::class);
+    Route::resource('menus', MenuController::class);
+    // Parameter route disamakan dengan nama variabel di controller ($slot)
+    // agar implicit model binding Laravel berjalan.
+    Route::resource('capacity-slots', CapacitySlotController::class)
+        ->parameters(['capacity-slots' => 'slot']);
 });
 
 Route::get('/admin/dashboard', function () {

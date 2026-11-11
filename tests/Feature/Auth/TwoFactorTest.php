@@ -3,6 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\Branch;
+use App\Models\CapacitySlot;
+use App\Models\Menu;
 use App\Models\User;
 use App\Services\Auth\TwoFactorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -219,6 +221,32 @@ class TwoFactorTest extends TestCase
         ]);
         $this->actingAs($admin)->withSession(['two_factor.passed' => true])
             ->get(route('admin.dashboard', ['role' => 'branch']))->assertOk();
+    }
+
+    public function test_master_data_requires_two_factor_before_reads_and_writes(): void
+    {
+        $records = [
+            'branches' => Branch::factory()->create(),
+            'menus' => Menu::factory()->create(),
+            'capacity-slots' => CapacitySlot::factory()->create(),
+        ];
+
+        $this->actingAs(User::factory()->owner()->create());
+        foreach ($records as $resource => $record) {
+            $this->get('/admin/'.$resource)->assertRedirect(route('two-factor.setup'));
+        }
+
+        $this->actingAs($this->userWithConfirmedTwoFactor());
+        foreach ($records as $resource => $record) {
+            $url = '/admin/'.$resource;
+            foreach ([$url, $url.'/create', $url.'/'.$record->id, $url.'/'.$record->id.'/edit'] as $page) {
+                $this->get($page)->assertRedirect(route('two-factor.login'));
+            }
+            $this->post($url)->assertRedirect(route('two-factor.login'));
+            $this->put($url.'/'.$record->id)->assertRedirect(route('two-factor.login'));
+            $this->delete($url.'/'.$record->id)->assertRedirect(route('two-factor.login'));
+            $this->assertModelExists($record);
+        }
     }
 
     public function test_owner_can_reset_branch_admin_two_factor_but_admin_cannot_reset_owner(): void

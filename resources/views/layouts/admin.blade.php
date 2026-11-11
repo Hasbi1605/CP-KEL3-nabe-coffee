@@ -36,7 +36,7 @@
         ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'admin.dashboard'],
         ['label' => 'Cabang', 'icon' => 'cabang', 'route' => 'admin.branches.index'],
         ['label' => 'Menu', 'icon' => 'menu', 'route' => 'admin.menus.index'],
-        ['label' => 'Kuota', 'icon' => 'kuota', 'route' => 'admin.quotas.index'],
+        ['label' => 'Kuota', 'icon' => 'kuota', 'route' => 'admin.capacity-slots.index'],
         ['label' => 'CMS', 'icon' => 'cms', 'route' => 'admin.cms.index'],
         ['label' => 'Analitik', 'icon' => 'analitik', 'route' => 'admin.analytics'],
     ];
@@ -142,6 +142,20 @@
         </header>
 
         <main class="flex-1 px-5 py-6 lg:px-8">
+            {{-- Pesan sukses/error dari CRUD (dipertahankan dari layout lama 2.2) --}}
+            @if (session('success'))
+                <p class="mb-4 rounded border border-green-300 bg-green-100 px-4 py-2 text-green-800">{{ session('success') }}</p>
+            @endif
+            @if ($errors->any())
+                <div class="mb-4 rounded border border-red-300 bg-red-100 px-4 py-2 text-red-800">
+                    <p class="font-semibold">Terjadi kesalahan validasi:</p>
+                    <ul class="list-inside list-disc">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             @yield('content')
         </main>
     </div>
