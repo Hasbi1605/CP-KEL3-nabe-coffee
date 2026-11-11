@@ -26,6 +26,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 
 ### Security
 - Reset 2FA wajib lolos verifikasi Owner dan hanya untuk Admin Cabang; konsumsi kode cadangan memakai transaksi dan row lock agar tidak dapat dipakai ulang oleh request stale (1.5, #23)
+- Sinkronisasi login dan 2FA dengan main; dashboard admin wajib login dan lolos verifikasi dua langkah (1.5, #23)
 
 ### Added
 - Two-Factor Authentication Google Authenticator (TOTP): aktivasi QR + kode cadangan 8x sekali pakai, verifikasi tiap login, kunci 60 detik setelah 5x salah, reset oleh owner (1.5)
@@ -41,6 +42,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 - Keputusan hosting AWS EC2 Free Tier, dan diagram layer sistem untuk UTS (`docs/diagram-layer-sistem.png`)
 - `DESIGN.md` dari Figma Nabe Coffe, dan token warna & font di `resources/css/app.css`
 - Prototipe desain (React, acuan saja) di `docs/prototype/`, logo resmi Nabe di `docs/brand/` dan `public/images/brand/`
+- Layout admin (sidebar, topbar, menu per role), komponen Blade `stat-card`, dan halaman dashboard admin dengan data dummy (2.1, #20)
 
 ### Changed
 - Warna `primary` diganti ke `#006d8b` mengikuti warna logo resmi Nabe

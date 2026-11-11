@@ -93,10 +93,11 @@ class TwoFactorTest extends TestCase
         $user = $this->userWithConfirmedTwoFactor();
         $code = $this->twoFactor->getCurrentTotp($user->two_factor_secret);
 
-        $this->post('/login', [
+        $this->withSession(['two_factor.passed' => true])->post('/login', [
             'email' => 'owner@nabe.coffee',
             'password' => 'password-benar',
-        ])->assertRedirect(route('two-factor.login'));
+        ])->assertRedirect(route('two-factor.login'))
+            ->assertSessionMissing('two_factor.passed');
 
         $this->post('/two-factor-challenge', ['code' => '000000'])
             ->assertSessionHasErrors(['code' => 'Kode autentikasi salah.']);
@@ -194,6 +195,30 @@ class TwoFactorTest extends TestCase
             ->get('/_test-protected')
             ->assertOk()
             ->assertSee('ok-protected');
+    }
+
+    public function test_dashboard_requires_login_and_verified_two_factor(): void
+    {
+        $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
+
+        $unconfirmed = User::factory()->owner()->create();
+        $this->actingAs($unconfirmed)->get(route('admin.dashboard'))
+            ->assertRedirect(route('two-factor.setup'));
+
+        $confirmed = $this->userWithConfirmedTwoFactor();
+        $this->actingAs($confirmed)->get(route('admin.dashboard'))
+            ->assertRedirect(route('two-factor.login'));
+
+        $this->withSession(['two_factor.passed' => true])
+            ->get(route('admin.dashboard'))->assertOk();
+
+        $admin = $this->userWithConfirmedTwoFactor([
+            'email' => 'admin@nabe.coffee',
+            'role' => 'branch_admin',
+            'branch_id' => Branch::factory(),
+        ]);
+        $this->actingAs($admin)->withSession(['two_factor.passed' => true])
+            ->get(route('admin.dashboard', ['role' => 'branch']))->assertOk();
     }
 
     public function test_owner_can_reset_branch_admin_two_factor_but_admin_cannot_reset_owner(): void

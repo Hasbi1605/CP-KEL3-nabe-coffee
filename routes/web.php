@@ -30,6 +30,12 @@ Route::middleware('auth')->group(function (): void {
         ->name('admin.users.reset-two-factor');
 });
 
+Route::get('/admin/dashboard', function () {
+    $role = request('role') === 'branch' ? 'branch' : 'owner';
+
+    return view('admin.dashboard', ['role' => $role]);
+})->middleware(['auth', 'two-factor'])->name('admin.dashboard');
+
 Route::get('/menu', function () {
     $branches = [
         'Nabe Coffee Kusumanegara',
