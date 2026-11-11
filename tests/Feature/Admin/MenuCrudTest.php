@@ -211,6 +211,35 @@ class MenuCrudTest extends TestCase
         Storage::disk('public')->assertMissing($photo);
     }
 
+    public function test_foto_tidak_hilang_saat_penghapusan_menu_gagal(): void
+    {
+        Storage::fake('public');
+        $menu = Menu::factory()->create([
+            'photo' => UploadedFile::fake()->image('hapus.jpg')->store('menus', 'public'),
+        ]);
+        $photo = $menu->photo;
+
+        // Simulasikan kegagalan penghapusan record setelah foto
+        // sempat dihapus pada kode lama: foto harus tetap utuh.
+        Menu::deleting(function (): void {
+            throw new \RuntimeException('simulasi gagal hapus');
+        });
+
+        try {
+            $response = $this->actingAs($this->owner())
+                ->delete(route('admin.menus.destroy', $menu));
+
+            $response->assertServerError();
+        } finally {
+            Menu::flushEventListeners();
+        }
+
+        // Foto tetap utuh dan record masih menunjuk ke sana.
+        Storage::disk('public')->assertExists($photo);
+        $this->assertDatabaseHas('menus', ['id' => $menu->id]);
+        $this->assertSame($photo, $menu->fresh()->photo);
+    }
+
     public function test_admin_cabang_ditolak_dengan_403(): void
     {
         $branch = Branch::factory()->create();

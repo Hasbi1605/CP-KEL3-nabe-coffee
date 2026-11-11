@@ -121,11 +121,16 @@ class MenuController extends Controller
 
     public function destroy(Menu $menu): RedirectResponse
     {
-        if ($menu->photo !== null) {
-            Storage::disk('public')->delete($menu->photo);
-        }
+        // Simpan path dulu, hapus record dulu, baru hapus file: kalau
+        // penghapusan record gagal, foto tetap utuh dan path di
+        // database masih menunjuk ke file yang ada.
+        $photo = $menu->photo;
 
         $menu->delete();
+
+        if ($photo !== null) {
+            Storage::disk('public')->delete($photo);
+        }
 
         return redirect()
             ->route('admin.menus.index')
