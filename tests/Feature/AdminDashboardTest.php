@@ -2,10 +2,25 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminDashboardTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $owner = User::factory()->owner()->create([
+            'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
+            'two_factor_confirmed_at' => now(),
+        ]);
+        $this->actingAs($owner)->withSession(['two_factor.passed' => true]);
+    }
+
     public function test_dashboard_owner_menampilkan_menu_owner_dan_empat_cabang(): void
     {
         $this->get('/admin/dashboard')

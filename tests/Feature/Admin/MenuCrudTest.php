@@ -17,7 +17,12 @@ class MenuCrudTest extends TestCase
 
     private function owner(): User
     {
-        return User::factory()->owner()->create();
+        $this->withSession(['two_factor.passed' => true]);
+
+        return User::factory()->owner()->create([
+            'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
+            'two_factor_confirmed_at' => now(),
+        ]);
     }
 
     private function branchAdmin(): User

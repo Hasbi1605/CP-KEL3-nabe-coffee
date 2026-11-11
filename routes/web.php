@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CapacitySlotController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
+use App\Http\Controllers\Auth\TwoFactorResetController;
+use App\Http\Controllers\Auth\TwoFactorSetupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,15 +22,18 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
-Route::get('/two-factor-challenge', function () {
-    return view('auth.two-factor-challenge');
-})->name('two-factor.login');
+Route::middleware('auth')->group(function (): void {
+    Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'create'])->name('two-factor.login');
+    Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->name('two-factor.challenge.store');
+    Route::get('/two-factor-setup', [TwoFactorSetupController::class, 'create'])->name('two-factor.setup');
+    Route::post('/two-factor-setup', [TwoFactorSetupController::class, 'store'])->name('two-factor.setup.store');
 
-Route::get('/two-factor-setup', function () {
-    return view('auth.two-factor-setup');
-})->name('two-factor.setup');
+    Route::post('/admin/users/{user}/reset-two-factor', TwoFactorResetController::class)
+        ->middleware(['role:owner', 'two-factor'])
+        ->name('admin.users.reset-two-factor');
+});
 
-Route::middleware('owner')->prefix('admin')->name('admin.')->group(function (): void {
+Route::middleware(['owner', 'two-factor'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::resource('branches', BranchController::class);
     Route::resource('menus', MenuController::class);
     // Parameter route disamakan dengan nama variabel di controller ($slot)
@@ -40,7 +46,7 @@ Route::get('/admin/dashboard', function () {
     $role = request('role') === 'branch' ? 'branch' : 'owner';
 
     return view('admin.dashboard', ['role' => $role]);
-})->name('admin.dashboard');
+})->middleware(['auth', 'two-factor'])->name('admin.dashboard');
 
 Route::get('/menu', function () {
     $branches = [

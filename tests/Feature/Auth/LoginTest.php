@@ -55,7 +55,9 @@ class LoginTest extends TestCase
         ]);
 
         $this->assertAuthenticatedAs($owner);
-        $response->assertRedirect(route('home'));
+        // Sejak tugas 1.5, login kata sandi yang benar lanjut ke 2FA dulu;
+        // user tanpa 2FA diarahkan ke aktivasi.
+        $response->assertRedirect(route('two-factor.setup'));
     }
 
     public function test_branch_admin_can_login(): void
@@ -68,7 +70,7 @@ class LoginTest extends TestCase
         $this->post('/login', [
             'email' => 'admin-kusumanegara@nabe.coffee',
             'password' => 'password-rahasia',
-        ])->assertRedirect(route('home'));
+        ])->assertRedirect(route('two-factor.setup'));
 
         $this->assertAuthenticatedAs($admin);
     }
@@ -150,7 +152,7 @@ class LoginTest extends TestCase
         $owner = User::factory()->owner()->create();
         $admin = User::factory()->branchAdmin()->create();
 
-        Route::middleware(['auth', 'role:owner'])
+        Route::middleware(['web', 'auth', 'role:owner'])
             ->get('/_test-owner-only', fn () => 'ok-owner');
 
         $this->actingAs($admin)->get('/_test-owner-only')->assertForbidden();

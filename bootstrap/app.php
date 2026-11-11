@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureOwner;
+use App\Http\Middleware\EnsureTwoFactorVerified;
 use App\Http\Middleware\EnsureUserRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'owner' => EnsureOwner::class,
             'role' => EnsureUserRole::class,
+            'two-factor' => EnsureTwoFactorVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
