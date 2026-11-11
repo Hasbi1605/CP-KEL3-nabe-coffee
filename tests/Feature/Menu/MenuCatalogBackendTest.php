@@ -15,7 +15,7 @@ class MenuCatalogBackendTest extends TestCase
     public function test_catalog_reads_menus_from_database_not_dummy(): void
     {
         $branch = Branch::factory()->create(['name' => 'Nabe Coffee Kusumanegara']);
-        Menu::factory()->create([
+        $menu = Menu::factory()->create([
             'branch_id' => $branch->id,
             'name' => 'Menu Dari Database Unik',
             'category' => 'coffee',
@@ -30,6 +30,9 @@ class MenuCatalogBackendTest extends TestCase
             'price' => 17000,
             'is_available' => false,
         ]);
+
+        $this->assertSame('coffee', $menu->category);
+        $this->assertSame('Kopi', $menu->toCatalogArray()['category']);
 
         $this->get('/menu')
             ->assertOk()

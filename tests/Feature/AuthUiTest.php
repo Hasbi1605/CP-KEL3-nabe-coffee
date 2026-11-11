@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use App\Services\Auth\TwoFactorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\MessageBag;
 use Tests\TestCase;
@@ -58,7 +60,17 @@ class AuthUiTest extends TestCase
 
     public function test_two_factor_challenge_page_renders_with_custom_tab_title_and_fields(): void
     {
-        $response = $this->get('/two-factor-challenge');
+        // Sejak tugas 1.5, halaman challenge wajib login; tes UI lama
+        // disesuaikan memakai user yang sudah punya 2FA aktif.
+        $twoFactor = app(TwoFactorService::class);
+        $setup = $twoFactor->generateSetup();
+        $user = User::factory()->owner()->create([
+            'two_factor_secret' => $setup['secret'],
+            'two_factor_recovery_codes' => $setup['recovery_codes'],
+            'two_factor_confirmed_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->get('/two-factor-challenge');
 
         $response->assertStatus(200);
         $response->assertSee('<title>Verifikasi Dua Faktor — Nabe Coffee</title>', false);
@@ -75,7 +87,15 @@ class AuthUiTest extends TestCase
             'recovery_code' => ['Kode cadangan sudah dipakai.'],
         ]);
 
-        $response = $this->withSession([
+        $twoFactor = app(TwoFactorService::class);
+        $setup = $twoFactor->generateSetup();
+        $user = User::factory()->owner()->create([
+            'two_factor_secret' => $setup['secret'],
+            'two_factor_recovery_codes' => $setup['recovery_codes'],
+            'two_factor_confirmed_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->withSession([
             'errors' => $errors,
         ])->get('/two-factor-challenge');
 
@@ -86,7 +106,9 @@ class AuthUiTest extends TestCase
 
     public function test_two_factor_setup_page_renders_with_custom_tab_title_qr_and_backup_codes(): void
     {
-        $response = $this->get('/two-factor-setup');
+        $user = User::factory()->owner()->create();
+
+        $response = $this->actingAs($user)->get('/two-factor-setup');
 
         $response->assertStatus(200);
         $response->assertSee('<title>Aktivasi Two-Factor Authentication — Nabe Coffee</title>', false);
@@ -103,7 +125,9 @@ class AuthUiTest extends TestCase
             'code' => ['Kode konfirmasi salah atau kedaluwarsa.'],
         ]);
 
-        $response = $this->withSession([
+        $user = User::factory()->owner()->create();
+
+        $response = $this->actingAs($user)->withSession([
             'errors' => $errors,
         ])->get('/two-factor-setup');
 

@@ -1,6 +1,7 @@
-@extends('layouts.auth')
+@extends('layouts.admin')
 
 @section('title', 'Ubah Promo — Nabe Coffee')
+@section('page_title', 'Ubah Promo')
 
 @section('content')
     <div class="w-full py-8">

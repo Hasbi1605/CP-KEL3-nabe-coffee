@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Http\Middleware\EnsureTwoFactorVerified;
 use App\Models\Branch;
 use App\Models\Promotion;
 use App\Models\User;
@@ -116,6 +115,7 @@ class PromotionCmsTest extends TestCase
         $promotion = Promotion::factory()->create();
 
         $this->get(route('admin.promotions.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.homepage-content.edit'))->assertRedirect(route('login'));
 
         $admin = $this->verifiedBranchAdmin();
         $this->actingAs($admin)->get(route('admin.promotions.index'))->assertForbidden();
@@ -123,16 +123,18 @@ class PromotionCmsTest extends TestCase
             'title' => 'Ilegal', 'starts_at' => now(), 'ends_at' => now()->addDay(),
         ])->assertForbidden();
         $this->actingAs($admin)->get(route('admin.promotions.edit', $promotion))->assertForbidden();
+        $this->get(route('admin.homepage-content.edit'))->assertForbidden();
+        $this->put(route('admin.homepage-content.update'), [])->assertForbidden();
 
         $this->assertDatabaseCount('promotions', 1);
     }
 
     public function test_owner_must_pass_two_factor_before_cms(): void
     {
-        if (! class_exists(EnsureTwoFactorVerified::class)) {
-            $this->markTestSkipped('Middleware 2FA dari tugas 1.5 belum ada di branch ini.');
-        }
+        $this->actingAs(User::factory()->owner()->create())
+            ->get(route('admin.promotions.index'))->assertRedirect(route('two-factor.setup'));
 
+        $promotion = Promotion::factory()->create();
         $owner = User::factory()->owner()->create([
             'two_factor_secret' => 'secret-untuk-tes-3.4',
             'two_factor_recovery_codes' => ['AAAA-1111'],
@@ -142,6 +144,34 @@ class PromotionCmsTest extends TestCase
         // Belum lolos challenge -> dilempar ke halaman challenge, bukan CMS.
         $this->actingAs($owner)->get(route('admin.promotions.index'))
             ->assertRedirect(route('two-factor.login'));
+        foreach (['admin.promotions.create', 'admin.homepage-content.edit'] as $route) {
+            $this->get(route($route))->assertRedirect(route('two-factor.login'));
+        }
+        $this->get(route('admin.promotions.show', $promotion))->assertRedirect(route('two-factor.login'));
+        $this->get(route('admin.promotions.edit', $promotion))->assertRedirect(route('two-factor.login'));
+        $this->post(route('admin.promotions.store'))->assertRedirect(route('two-factor.login'));
+        $this->put(route('admin.promotions.update', $promotion))->assertRedirect(route('two-factor.login'));
+        $this->delete(route('admin.promotions.destroy', $promotion))->assertRedirect(route('two-factor.login'));
+        $this->put(route('admin.homepage-content.update'))->assertRedirect(route('two-factor.login'));
+        $this->assertModelExists($promotion);
+    }
+
+    public function test_cms_pages_use_admin_layout_and_link_to_promotions(): void
+    {
+        $promotion = Promotion::factory()->create();
+        $this->actingAs($this->verifiedOwner());
+
+        foreach ([
+            route('admin.promotions.index'),
+            route('admin.promotions.create'),
+            route('admin.promotions.show', $promotion),
+            route('admin.promotions.edit', $promotion),
+            route('admin.homepage-content.edit'),
+        ] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSee('id="admin-sidebar"', false)
+                ->assertSee('href="'.route('admin.promotions.index').'"', false);
+        }
     }
 
     public function test_owner_can_update_homepage_outlet_and_promo_text(): void

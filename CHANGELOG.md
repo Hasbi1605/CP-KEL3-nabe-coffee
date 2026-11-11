@@ -24,25 +24,35 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 
 ## [Unreleased]
 
+### Security
+- Reset 2FA wajib lolos verifikasi Owner dan hanya untuk Admin Cabang; konsumsi kode cadangan memakai transaksi dan row lock agar tidak dapat dipakai ulang oleh request stale (1.5, #23)
+- Sinkronisasi login dan 2FA dengan main; dashboard admin wajib login dan lolos verifikasi dua langkah (1.5, #23)
+- CRUD cabang, menu, dan kuota mewajibkan verifikasi 2FA setelah sinkronisasi hasil merge #21 (1.5, #23)
+
 ### Added
 - Backend katalog menu dari database + CMS promosi owner (CRUD + banner) dan CMS teks info outlet/promo halaman utama (3.4)
+- Two-Factor Authentication Google Authenticator (TOTP): aktivasi QR + kode cadangan 8x sekali pakai, verifikasi tiap login, kunci 60 detik setelah 5x salah, reset oleh owner (1.5)
+- CRUD data master cabang, menu, dan kuota (CapacitySlot) untuk owner, lengkap dengan Form Request berbahasa Indonesia, upload foto menu, dan feature test (2.2, #7)
+- Validasi & logika login admin: form request, throttle 5x, logout, redirect sesuai peran, middleware role owner/admin cabang (1.3)
 - UI katalog menu dengan filter kategori, harga, pilihan cabang, kartu menu, dan detail menu dummy (3.3, #15)
 - Komponen Blade `branch-card` info cabang dengan integrasi Google Maps iframe dan tombol WhatsApp (3.2, #9)
 - Halaman company profile & landing page: hero, cerita brand, visi-misi, galeri suasana, promo, dan info 4 cabang (3.1, #19)
 - Layout publik (navbar, footer, topline), komponen Blade button/input/badge, halaman login admin, dan halaman Two-Factor Authentication (1.2, #17)
-- Skema database awal: tabel `menus`, `capacity_slots`, `promotions` + `branches` dan kolom `users` (`role`, `branch_id`, 2FA), beserta model, factory, dan seeder (1.1, 1.4, #13)
+- Skema database awal: tabel `menus`, `capacity_slots`, `promotions` + `branches` dan kolom `users` (`role`, `branch_id`, 2FA), beserta     model, factory, dan seeder (1.1, 1.4, #13)
 - Dokumen proyek: `AGENTS.md`, `CONTRIBUTING.md`, `docs/PRD.md`, dan `README.md` khusus Nabe Coffee
 - Template Pull Request, template issue tugas, dan `CODEOWNERS`
 - Tugas 1.5 Two-Factor Authentication (Google Authenticator) di sprint backlog, PRD, dan AGENTS.md
 - Keputusan hosting AWS EC2 Free Tier, dan diagram layer sistem untuk UTS (`docs/diagram-layer-sistem.png`)
 - `DESIGN.md` dari Figma Nabe Coffe, dan token warna & font di `resources/css/app.css`
 - Prototipe desain (React, acuan saja) di `docs/prototype/`, logo resmi Nabe di `docs/brand/` dan `public/images/brand/`
+- Layout admin (sidebar, topbar, menu per role), komponen Blade `stat-card`, dan halaman dashboard admin dengan data dummy (2.1, #20)
 
 ### Changed
 - Warna `primary` diganti ke `#006d8b` mengikuti warna logo resmi Nabe
 
 ### Fixed
 - Publikasi promo aktif dan penanganan kegagalan penyimpanan teks serta penghapusan banner CMS (3.4, #24)
+- Integrasi CMS dengan layout admin, CRUD kategori menu, serta proteksi Owner dan 2FA setelah sinkronisasi main (3.4, #24)
 
 ## [0.0.0] - 2026-10-21
 

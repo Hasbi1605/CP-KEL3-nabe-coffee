@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -49,31 +50,25 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class);
-    }
-
-    // Toleransi enum/string disengaja untuk branch 3.4 yang berdiri
-    // sendiri; saat digabung dengan PR #22, deduplikasi ke versi enum
-    // UserRole dari #22 (sudah diverifikasi pada gabungan 48 tes).
     public function isOwner(): bool
     {
-        $role = $this->role instanceof \BackedEnum ? $this->role->value : $this->role;
-
-        return $role === 'owner';
+        return $this->role === UserRole::Owner;
     }
 
     public function isBranchAdmin(): bool
     {
-        $role = $this->role instanceof \BackedEnum ? $this->role->value : $this->role;
+        return $this->role === UserRole::BranchAdmin;
+    }
 
-        return $role === 'branch_admin';
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }
