@@ -71,9 +71,4 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Branch::class);
     }
-
-    public function isOwner(): bool
-    {
-        return $this->role === 'owner';
-    }
 }
