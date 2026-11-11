@@ -30,6 +30,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 - CRUD cabang, menu, dan kuota mewajibkan verifikasi 2FA setelah sinkronisasi hasil merge #21 (1.5, #23)
 
 ### Added
+- Backend katalog menu dari database + CMS promosi owner (CRUD + banner) dan CMS teks info outlet/promo halaman utama (3.4)
 - Two-Factor Authentication Google Authenticator (TOTP): aktivasi QR + kode cadangan 8x sekali pakai, verifikasi tiap login, kunci 60 detik setelah 5x salah, reset oleh owner (1.5)
 - CRUD data master cabang, menu, dan kuota (CapacitySlot) untuk owner, lengkap dengan Form Request berbahasa Indonesia, upload foto menu, dan feature test (2.2, #7)
 - Validasi & logika login admin: form request, throttle 5x, logout, redirect sesuai peran, middleware role owner/admin cabang (1.3)
@@ -48,6 +49,10 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 
 ### Changed
 - Warna `primary` diganti ke `#006d8b` mengikuti warna logo resmi Nabe
+
+### Fixed
+- Publikasi promo aktif dan penanganan kegagalan penyimpanan teks serta penghapusan banner CMS (3.4, #24)
+- Integrasi CMS dengan layout admin, CRUD kategori menu, serta proteksi Owner dan 2FA setelah sinkronisasi main (3.4, #24)
 
 ## [0.0.0] - 2026-10-21
 

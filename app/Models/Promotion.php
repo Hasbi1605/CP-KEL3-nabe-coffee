@@ -23,4 +23,27 @@ class Promotion extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    /**
+     * Promo yang sedang berjalan saat ini. branch_id null artinya
+     * berlaku untuk semua cabang.
+     */
+    public function scopeActiveNow($query)
+    {
+        $now = now();
+
+        return $query->where('starts_at', '<=', $now)
+            ->where('ends_at', '>=', $now);
+    }
+
+    public function scopeForBranch($query, ?int $branchId)
+    {
+        return $query->where(function ($q) use ($branchId): void {
+            $q->whereNull('branch_id');
+
+            if ($branchId !== null) {
+                $q->orWhere('branch_id', $branchId);
+            }
+        });
+    }
 }

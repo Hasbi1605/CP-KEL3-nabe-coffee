@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class LandingPageTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_landing_page_renders_all_required_company_profile_sections(): void
     {
         $response = $this->get('/');
@@ -37,14 +40,15 @@ class LandingPageTest extends TestCase
 
         // 5. Section Promo
         $response->assertSee('PROMO &amp; SPESIAL BULAN INI', false);
-        $response->assertSee('Pratinjau Konsep', false);
-        $response->assertSee('Contoh Promo', false);
-        $response->assertSee('Morning Fuel Combo', false);
-        $response->assertSee('Group Table Gathering', false);
+        $response->assertSee('Belum ada promo yang aktif saat ini.');
+        $response->assertDontSee('Pratinjau Konsep');
+        $response->assertDontSee('Contoh Promo');
+        $response->assertDontSee('Morning Fuel Combo');
+        $response->assertDontSee('Group Table Gathering');
 
         // 6. Section 4 Cabang
         $response->assertSee('id="outlet"', false);
-        $response->assertSee('FIND YOUR NABE.', false);
+        $response->assertSee('INFO CABANG NABE COFFEE.', false); // judul default CMS 3.4 (sebelumnya FIND YOUR NABE.)
         $response->assertSee('Kusumanegara', false);
         $response->assertSee('Demangan', false);
         $response->assertSee('Soragan', false);

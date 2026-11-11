@@ -37,7 +37,7 @@
         ['label' => 'Cabang', 'icon' => 'cabang', 'route' => 'admin.branches.index'],
         ['label' => 'Menu', 'icon' => 'menu', 'route' => 'admin.menus.index'],
         ['label' => 'Kuota', 'icon' => 'kuota', 'route' => 'admin.capacity-slots.index'],
-        ['label' => 'CMS', 'icon' => 'cms', 'route' => 'admin.cms.index'],
+        ['label' => 'CMS', 'icon' => 'cms', 'route' => 'admin.promotions.index'],
         ['label' => 'Analitik', 'icon' => 'analitik', 'route' => 'admin.analytics'],
     ];
     $menuBranch = [
