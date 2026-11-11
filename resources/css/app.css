@@ -1,5 +1,69 @@
 @import 'tailwindcss';
 
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/nabe-font-0.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/nabe-font-1.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/nabe-font-2.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('/fonts/nabe-font-3.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/nabe-font-4.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/nabe-font-5.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/nabe-font-6.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/nabe-font-7.ttf') format('truetype');
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -118,6 +182,51 @@
     }
 }
 
+@layer components {
+    .menu-hero {
+        @apply relative h-[350px] overflow-hidden bg-primary-dark text-white sm:h-[400px];
+    }
+
+    .menu-hero-overlay {
+        @apply absolute inset-0 bg-linear-to-r from-primary-dark/95 to-primary-dark/45;
+    }
+
+    .menu-hero-content {
+        @apply relative mx-auto max-w-[1600px] px-[22px] pt-20 sm:px-[7.1%];
+    }
+
+    .menu-section {
+        @apply mx-auto max-w-[1600px] px-[22px] py-[50px] sm:px-[7.1%] sm:py-[75px];
+    }
+
+    .menu-category-tab {
+        @apply bg-white text-ink hover:bg-soft;
+    }
+
+    .menu-category-tab.is-active {
+        @apply border-primary bg-primary text-white;
+    }
+
+    .menu-card {
+        @apply flex overflow-hidden rounded-[5px] border border-line bg-white;
+        flex-direction: column;
+    }
+
+    #menu-detail-modal {
+        position: fixed;
+        inset: 0;
+        margin: auto;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+        box-shadow: 0 10px 50px rgb(0 0 0 / 0.2);
+        border-radius: 5px;
+    }
+
+    #menu-detail-modal::backdrop {
+        background: rgb(21 62 67 / 0.6);
+    }
+}
+
 /* Utility tambahan sesuai prototipe dan DESIGN.md */
 .grid-pattern {
     background-color: var(--color-primary);
@@ -132,4 +241,45 @@
     font-weight: 700;
     text-transform: uppercase;
     display: block;
+}
+
+/* Komponen visual tambahan dari prototipe (di dalam @layer components agar utility class Tailwind tetap prioritas) */
+@layer components {
+    .asset-photo {
+        position: relative;
+        overflow: hidden;
+        background-color: var(--color-line);
+    }
+
+    .asset-photo small {
+        position: absolute;
+        bottom: 8px;
+        left: 10px;
+        color: white;
+        background: rgba(21, 62, 67, 0.75);
+        padding: 3px 7px;
+        border-radius: 3px;
+        font-size: 9px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        font-weight: 600;
+        z-index: 2;
+        max-width: 90%;
+    }
+
+    .hero-sticker {
+        position: absolute;
+        right: 8%;
+        top: 120px;
+        transform: rotate(12deg);
+        background: var(--color-lime);
+        color: var(--color-primary-dark);
+        width: 154px;
+        height: 154px;
+        border-radius: 50%;
+        border: 2px dashed var(--color-primary);
+        text-align: center;
+        z-index: 10;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
 }
