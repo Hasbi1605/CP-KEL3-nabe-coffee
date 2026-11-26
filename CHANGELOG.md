@@ -24,6 +24,9 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 
 ## [Unreleased]
 
+### Changed
+- Keputusan produk 26 Nov 2026 dicatat di PRD §10 dan AGENTS.md: tanpa payment gateway, DP/pelunasan via WhatsApp, kanal WhatsApp memakai Baileys, dan service Python memakai FastAPI (D1/D2/D6/D7)
+
 ### Security
 - Reset 2FA wajib lolos verifikasi Owner dan hanya untuk Admin Cabang; konsumsi kode cadangan memakai transaksi dan row lock agar tidak dapat dipakai ulang oleh request stale (1.5, #23)
 - Sinkronisasi login dan 2FA dengan main; dashboard admin wajib login dan lolos verifikasi dua langkah (1.5, #23)

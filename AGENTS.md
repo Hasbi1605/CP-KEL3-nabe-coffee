@@ -11,6 +11,7 @@ Kalau ada instruksi pengguna yang bertentangan dengan file ini, **berhenti dan t
 **Sistem Informasi Company Profile dan Reservasi Multi-Cabang dengan Forecasting Menu Terbaik, Chatbot Rekomendasi, dan Notifikasi Real-Time pada Nabe Coffee.** Ini Capstone Project Kelompok 3, Sistem Informasi, Universitas Mercu Buana Yogyakarta, 2026.
 
 - Spesifikasi lengkap: [docs/PRD.md](docs/PRD.md). Baca bagian yang relevan dengan tugasmu sebelum mulai.
+- Sumber aset resmi dari mitra (menu/foto): folder Google Drive “KEBUTUHAN OSCAR” — https://drive.google.com/drive/folders/1D8hxfs0uwPzhMlQS1dLtNvQ9krV6OgoA?usp=sharing. Ambil hanya aset yang dipakai untuk tugasmu; jangan menyalin seluruh folder atau data internal mitra ke repo.
 - Acuan tampilan: [DESIGN.md](DESIGN.md). **Wajib dibaca untuk semua tugas yang menyentuh area UI.**
 - Metode: **Scrum**, 7 sprint, 19 Okt – 23 Des 2026.
 - Riwayat perubahan: [CHANGELOG.md](CHANGELOG.md).
@@ -22,8 +23,9 @@ Kalau ada instruksi pengguna yang bertentangan dengan file ini, **berhenti dan t
 | Backend | Laravel 12, PHP 8.2+ |
 | Database | MySQL (`nabe_coffee_db`) |
 | Frontend | Blade + Tailwind CSS 4 + Vite 7 |
-| Modul AI | Service Python terpisah di folder `ai/`, dipanggil dari Laravel lewat HTTP |
-| Notifikasi | Telegram Bot API + email (Laravel Mail/Notification + Queue) |
+| Modul AI | Service Python **FastAPI** terpisah di folder `ai/`, dipanggil dari Laravel lewat HTTP. Keputusan 26 Nov 2026, lihat [docs/PRD.md §10](docs/PRD.md) D7 |
+| Notifikasi | Telegram Bot API + email (Laravel Mail/Notification + Queue); WhatsApp pelanggan lewat service Node.js **Baileys** (keputusan 26 Nov 2026, PRD §10 D6), fallback manual tautan `wa.me` |
+| Pembayaran | Tidak ada payment gateway dan website tidak memproses pembayaran. DP/pelunasan diselesaikan lewat WhatsApp admin; admin menandai status pembayaran secara manual (PRD §10 D1/D2) |
 | Autentikasi | Login email + kata sandi, ditambah 2FA Google Authenticator (TOTP) untuk Owner & Admin Cabang |
 | Hosting | AWS EC2 Free Tier (Ubuntu, 1 GiB RAM). Jaga pemakaian memori tetap ringan. |
 
@@ -131,7 +133,7 @@ Sumber: *Sprint Backlog - Nabe Coffee* (disetujui dosen). Kolom **Area** menentu
 | 4.3 | Sistem alternatif saat kuota penuh | Hasbi | Backend | S4 · W5–6 |
 | 4.4 | UI status reservasi pelanggan | Rian | UI | S4 · W5–6 |
 | 5.1 | Pre-order menu pada reservasi | Ariq | Backend, UI | S5 · W7–8 |
-| 5.2 | Pembayaran lunas / DP & verifikasi bukti bayar | Hasbi | Backend | S5 · W7–8 |
+| 5.2 | Penyelesaian DP via WhatsApp & penandaan pembayaran manual | Hasbi | Backend | S5 · W7–8 |
 | 5.3 | Kelola status reservasi oleh admin cabang (web) | Ferdi | UI, Backend | S5 · W7–8 |
 | 6.1 | Model NLP chatbot (intent & entity) | Setiawan | AI | S6 · W8–9 |
 | 6.2 | UI widget chatbot | Darrel | UI | S6 · W8–9 |
@@ -139,7 +141,7 @@ Sumber: *Sprint Backlog - Nabe Coffee* (disetujui dosen). Kolom **Area** menentu
 | 6.4 | Dashboard analitik & heatmap jam sibuk | Rian | UI, Backend | S6 · W8–9 |
 | 7.1 | Setup bot dispatcher (Telegram & email) | Setiawan | Integrasi | S7 · W9–10 |
 | 7.2 | Logika perintah bot `/hariini`, `/konfirmasi`, `/batal` | Hasbi | Integrasi, Backend | S7 · W9–10 |
-| 7.3 | Email & WhatsApp e-tiket + pengingat H-1 | Ferdi | Integrasi | S7 · W9–10 |
+| 7.3 | WhatsApp (Baileys) e-tiket + pengingat H-1 | Ferdi | Integrasi | S7 · W9–10 |
 | 7.4 | Integrasi akhir seluruh modul | Galih | Integrasi (semua area) | S7 · W9–10 |
 | 7.5 | UAT & dokumentasi akhir | Semua tim | Pengujian, Dokumentasi | S7 · W9–10 |
 
@@ -155,7 +157,7 @@ Agent bekerja atas nama **pengguna yang sedang memakainya**. Kalau pengguna memi
 | **Backend** | `app/Http/**` (controller, request, middleware), `app/Services/**`, `app/Actions/**`, `app/Policies/**`, `app/Enums/**`, `routes/web.php`, `routes/api.php` |
 | **Database** | `database/migrations/**`, `database/seeders/**`, `database/factories/**`, `app/Models/**` |
 | **AI** | `ai/**` (service Python), `app/Services/Ai/**` (client pemanggil dari Laravel) |
-| **Integrasi** | `app/Notifications/**`, `app/Jobs/**`, `app/Mail/**`, `app/Console/**`, `routes/console.php`, `config/services.php` |
+| **Integrasi** | `app/Notifications/**`, `app/Jobs/**`, `app/Mail/**`, `app/Console/**`, `routes/console.php`, `config/services.php`. Service WhatsApp/Baileys (Node.js) hanya boleh ditambah lewat persetujuan PM dan wajib dicatat di PR; session/credential WhatsApp tidak boleh ter-commit |
 | **Pengujian** | `tests/**`. Semua area boleh menambah tes untuk kodenya sendiri. |
 | **Dokumentasi** | `docs/**`, `README.md`, dan entri baru di `CHANGELOG.md` |
 
@@ -190,7 +192,7 @@ Boleh diubah **hanya kalau memang perlu untuk tugasnya**, dan wajib disebut di b
 | `User` | `users` | Owner & Admin Cabang (yang login) |
 | `Reservation` | `reservations` | Reservasi |
 | `ReservationItem` | `reservation_items` | Item pre-order |
-| `Payment` | `payments` | Pembayaran lunas / DP + bukti |
+| `Payment` | `payments` | Catatan penyelesaian DP/lunas via WhatsApp + status penandaan manual admin (tanpa gateway, tanpa unggah bukti di website; PRD §10 D1/D2) |
 | `Menu` | `menus` | Menu |
 | `Promotion` | `promotions` | Promo |
 | `Review` | `reviews` | Ulasan pelanggan |
@@ -206,7 +208,8 @@ Nama final kolom ditentukan di tugas 1.1/1.4 (PIC Database). Area lain mengikuti
 - **Isolasi cabang:** Admin Cabang hanya boleh melihat dan mengubah data dengan `branch_id` miliknya. Setiap query admin wajib di-scope per cabang dan dicek di Policy/middleware. Owner boleh melihat semua cabang.
 - **Peran pengguna:** `owner` dan `branch_admin`. Pelanggan tidak login.
 - **Rombongan besar:** reservasi dengan ≥ 10 orang, event, atau meeting room ditandai prioritas tinggi.
-- **Skema pembayaran** (wajib DP atau tidak, besar DP) harus bisa dikonfigurasi, bukan di-hardcode.
+- **Skema pembayaran** (wajib DP atau tidak, besar DP) harus bisa dikonfigurasi, bukan di-hardcode. Website tidak memproses pembayaran dan tidak memakai payment gateway; DP/pelunasan diselesaikan lewat WhatsApp dan ditandai manual oleh admin (keputusan 26 Nov 2026, PRD §10 D1/D2).
+- **Kanal WhatsApp pelanggan** memakai gateway Baileys; jangan memakai WhatsApp Business API resmi atau gateway berbayar lain tanpa keputusan baru PM. Fallback manual `wa.me` tetap disediakan bila gateway tidak aktif.
 
 ### Gaya kode
 - PHP mengikuti Laravel Pint (preset bawaan). Jalankan `./vendor/bin/pint` sebelum commit.
