@@ -8,7 +8,8 @@
 | **Tim** | Kelompok 3, Sistem Informasi, Universitas Mercu Buana Yogyakarta |
 | **Pemilik dokumen** | Product Owner (Muhammad Hasbi Ash Shiddiqi) |
 | **Sumber** | Form Usulan Judul Capstone, Laporan Capstone (Bab I–III), Sprint Backlog, Pedoman Wawancara |
-| **Status** | Draft v1, 7 Nov 2026 |
+| **Sumber aset resmi mitra** | Folder Google Drive “KEBUTUHAN OSCAR” dari pihak Nabe Coffee (aset menu/foto; ambil hanya file yang dipakai dan catat sumbernya, jangan menyalin seluruh folder): https://drive.google.com/drive/folders/1D8hxfs0uwPzhMlQS1dLtNvQ9krV6OgoA?usp=sharing |
+| **Status** | Draft v1, 7 Nov 2026; keputusan D1/D2/D6/D7 ditutup 26 Nov 2026 |
 
 Kalau dokumen ini berbeda dengan laporan, **laporan resmi yang menjadi acuan**. Perbedaan dicatat di §10.
 
@@ -23,7 +24,7 @@ Nabe Coffee punya 4 cabang aktif di Yogyakarta, tapi belum punya website resmi d
 3. **Penempatan fleksibel tanpa standar kuota.** Kafe tidak memakai meja tetap; tempat disiapkan sesuai jumlah tamu. Rombongan besar dan acara yang butuh fasilitas (charger, sound, mic) perlu penanda khusus.
 4. **Pelanggan tidak bisa layanan mandiri.** Sisa kuota, kepadatan, dan status reservasi hanya bisa ditanyakan lewat chat admin.
 5. **Rekap manual tanpa analitik prediktif.** Menu terlaris dan jam sibuk direkap manual, belum ada prediksi menu dan peringatan no-show.
-6. **Skema pembayaran belum baku.** Belum ada aturan pasti antara lunas dan DP pengunci slot.
+6. **Skema pembayaran belum baku.** Belum ada aturan pasti antara lunas dan DP pengunci slot. **Ditutup 26 Nov 2026 (§10 D1/D2):** website tidak memproses pembayaran dan tidak memakai payment gateway; DP/pelunasan diselesaikan lewat WhatsApp, admin menandai hasilnya secara manual.
 
 ## 2. Tujuan
 
@@ -79,11 +80,11 @@ Penomoran mengikuti tabel use case description di laporan Bab 3.3.
 
 ### UC-3 Melakukan Pre-Order Menu (Pelanggan) — *extend UC-2*
 1. Pilih menu pre-order. Sistem menampilkan tagihan dan total.
-2. Pilih jenis pembayaran: **Lunas** atau **DP** (pengunci slot).
-3. Bayar atau unggah bukti pembayaran, lalu sistem memverifikasi.
-4. Kalau berhasil, reservasi tersimpan sebagai `pending` beserta item dan data pembayaran.
-- Kalau verifikasi gagal atau waktu habis: tampilkan "Pembayaran Gagal" dan reservasi tidak disimpan.
-- Wajib atau tidaknya DP dan besar DP **bisa dikonfigurasi**. Payment gateway opsional; versi awal memakai unggah bukti transfer dan verifikasi manual oleh admin.
+2. Pelanggan memilih jalur penyelesaian: **Lunas** atau **DP** (pengunci slot).
+3. Sistem mengarahkan pelanggan ke WhatsApp admin cabang (link `wa.me` berisi ringkasan reservasi + kode reservasi). Pembayaran dan pengiriman bukti transfer terjadi di chat WhatsApp.
+4. Admin memverifikasi pembayaran di WhatsApp, lalu menandai status pembayaran secara manual di dashboard web; reservasi tersimpan sebagai `pending` beserta item pre-order dan status pembayaran terakhir.
+- Kalau pembayaran di WhatsApp tidak dilanjutkan atau verifikasi gagal: admin membatalkan reservasi; sistem tidak memproses pembayaran apa pun.
+- **Keputusan 26 Nov 2026 (§10 D1/D2):** website tidak memproses pembayaran, tidak memakai payment gateway, dan tidak menyediakan unggah bukti bayar. Skema DP (wajib/opsional, nominal/persen) tetap bisa dikonfigurasi Owner sebagai acuan admin saat berkomunikasi via WhatsApp.
 
 ### UC-4 Melakukan Order Menu Langsung di Outlet (Pelanggan) — *extend UC-2*
 - Reservasi langsung disimpan sebagai `pending` tanpa pembayaran online. Pemesanan dan pembayaran dilakukan di outlet.
@@ -125,7 +126,7 @@ Penomoran mengikuti tabel use case description di laporan Bab 3.3.
   - `/hariini` menampilkan daftar reservasi hari ini;
   - `/konfirmasi <ID>` mengubah status ke `confirmed`;
   - `/batal <ID>` mengubah status ke `canceled`.
-- Kalau dikonfirmasi, e-tiket terbit ke pelanggan.
+- Kalau dikonfirmasi, e-tiket terbit ke pelanggan lewat WhatsApp (Baileys, §10 D6) dan/atau email.
 - Kalau 15 menit belum dikonfirmasi, sistem melakukan **eskalasi** ke penanggung jawab cabang.
 - Perintah tidak valid dijawab "Perintah tidak dikenali".
 
@@ -148,7 +149,7 @@ Penomoran mengikuti tabel use case description di laporan Bab 3.3.
 | **Forecasting menu terbaik** | Moving average dan exponential smoothing per menu per cabang. Naik ke model time-series setelah > 100 transaksi. | Histori order per menu per cabang | Skor, ranking 5 teratas, label *Terlaris*, saran stok | 6.3 |
 | **Chatbot rekomendasi** | Intent classification + entity extraction dengan TF-IDF + Logistic Regression, plus fallback | Teks pelanggan | Intent, entity, jawaban | 6.1, 6.2 |
 | **Skor risiko no-show** | Klasifikasi Logistic Regression | Riwayat pelanggan, jumlah tamu, DP/tidak, jarak waktu booking, dll. | Skor 0–1 dan label risiko | 6.3 |
-| **Dispatcher notifikasi** | Rule-based routing per `branch_id` + prioritas | Event reservasi | Pesan Telegram/email, log, retry, eskalasi | 7.1, 7.2 |
+| **Dispatcher notifikasi** | Rule-based routing per `branch_id` + prioritas. Internal: Telegram + email. Pelanggan: WhatsApp via service Node.js + **Baileys**; fallback manual tautan `wa.me` bila gateway tidak aktif | Event reservasi | Pesan Telegram/email/WhatsApp, log, retry, eskalasi | 7.1, 7.2, 7.3 |
 
 **Cold start:** sebelum ada data transaksi, label *Terlaris* diambil dari daftar best-seller yang diinput admin.
 
@@ -161,8 +162,8 @@ Penomoran mengikuti tabel use case description di laporan Bab 3.3.
 | BR-3 | Estimasi walk-in berasal dari persentase historis atau input admin per slot |
 | BR-4 | Rombongan ≥ 10 orang, event, atau meeting room ditandai prioritas tinggi |
 | BR-5 | Admin Cabang hanya mengakses data cabangnya (`branch_id`). Owner mengakses semua cabang. |
-| BR-6 | Skema DP (wajib/opsional, nominal/persen) bisa dikonfigurasi Owner |
-| BR-7 | Notifikasi internal lewat Telegram + email cabang. Tiket dan pengingat ke pelanggan lewat WhatsApp atau email. |
+| BR-6 | Skema DP (wajib/opsional, nominal/persen) bisa dikonfigurasi Owner sebagai acuan admin. Penyelesaian DP/pelunasan terjadi lewat WhatsApp; website tidak memproses pembayaran (keputusan D1/D2) |
+| BR-7 | Notifikasi internal lewat Telegram + email cabang. Tiket dan pengingat ke pelanggan lewat WhatsApp (Baileys, keputusan D6) atau email; fallback manual tautan `wa.me` |
 | BR-8 | Notifikasi yang gagal dikirim ulang (retry) dan setiap pengiriman dicatat di `notification_logs` |
 | BR-9 | Reservasi prioritas tinggi yang 15 menit belum dikonfirmasi dieskalasi |
 
@@ -175,8 +176,7 @@ Penomoran mengikuti tabel use case description di laporan Bab 3.3.
   - 2FA Google Authenticator (TOTP) untuk Owner dan Admin Cabang, secret TOTP disimpan terenkripsi;
   - proteksi CSRF bawaan Laravel;
   - isolasi data per cabang di level Policy;
-  - rahasia (token bot, SMTP) hanya di `.env`;
-  - bukti pembayaran disimpan di storage privat.
+  - rahasia (token bot, SMTP, session WhatsApp/Baileys) hanya di `.env` / storage privat, tidak ter-commit;
 - **Kinerja:** cek sisa kuota terasa instan, kurang dari 1 detik di jaringan normal.
 - **Keandalan notifikasi:** pengiriman lewat queue dengan retry.
 - **Privasi:** data transaksi dari mitra untuk forecasting dipakai dalam bentuk anonim.
@@ -191,15 +191,15 @@ Diagram layer sistem untuk UTS (dari bawah ke atas, mengikuti format dosen):
 | Web | Web responsif (desktop & HP). Tidak ada aplikasi desktop atau mobile native. Bot Telegram sebagai kanal notifikasi admin. |
 | Two Factor Authentication | Login email + kata sandi, lalu kode Google Authenticator (TOTP) untuk Owner & Admin Cabang |
 | OLTP / OLAP | **OLTP:** reservasi, kuota, pre-order, pembayaran, status, CMS, data master. **OLAP:** dashboard, heatmap, forecasting, skor no-show. |
-| Database & Web Server | Nginx + PHP-FPM (Laravel 12) + MySQL 8, service Python untuk modul AI |
+| Database & Web Server | Nginx + PHP-FPM (Laravel 12) + MySQL 8, service Python (FastAPI) untuk modul AI, service Node.js (Baileys) untuk gateway WhatsApp |
 | Virtual Machine / LXC Container | AWS EC2 instance (Ubuntu Server), aplikasi dijalankan dalam Docker container |
 | Hardware Virtualization | AWS Nitro Hypervisor (berbasis KVM) |
 | IT Hardware Infrastructure | Server fisik di data center AWS, ditambah laptop tim untuk pengembangan |
 
-**Hosting:** AWS EC2 Free Tier (instance kelas `t3.micro`/`t2.micro`, 1 GiB RAM). Karena RAM kecil, aktifkan swap 1–2 GB. Service Python juga cukup memuat model yang ringan (TF-IDF + Logistic Regression). Pilih region terdekat, misalnya Jakarta (`ap-southeast-3`) atau Singapura (`ap-southeast-1`), sesuai yang tersedia di Free Tier akun.
+**Hosting:** AWS EC2 Free Tier (instance kelas `t3.micro`/`t2.micro`, 1 GiB RAM). Karena RAM kecil, aktifkan swap 1–2 GB. Service Python (FastAPI) cukup memuat model yang ringan (TF-IDF + Logistic Regression) dan dijalankan 1 worker; service WhatsApp memakai Node.js + Baileys (tanpa Chromium) dengan satu session. Pilih region terdekat, misalnya Jakarta (`ap-southeast-3`) atau Singapura (`ap-southeast-1`), sesuai yang tersedia di Free Tier akun.
 
 **Pola aplikasi:** MVC 3 lapis (Boundary → Control → Entity).
-- **Boundary:** halaman Blade (LoginPage, KatalogPage, BookingForm, PaymentPage, DaftarReservasiPage, DashboardAnalyticsPage, CMSForm, ChatbotWidget) dan bot Telegram.
+- **Boundary:** halaman Blade (LoginPage, KatalogPage, BookingForm, PaymentPage, DaftarReservasiPage, DashboardAnalyticsPage, CMSForm, ChatbotWidget), bot Telegram, dan gateway WhatsApp (Baileys).
 - **Control:** AuthController, BookingController, PaymentController, ForecastingController, ChatbotController, NotificationDispatcher.
 - **Entity:** model pada [AGENTS.md §7](../AGENTS.md#7-konvensi-kode-dan-domain).
 
@@ -207,14 +207,14 @@ Diagram layer sistem untuk UTS (dari bawah ke atas, mengikuti format dosen):
 
 | # | Hal | Status |
 |---|---|---|
-| D1 | Skema DP final (wajib/opsional, nominal) | Menunggu kesepakatan mitra |
-| D2 | Payment gateway atau hanya unggah bukti transfer | Default: unggah bukti. Gateway opsional. |
+| D1 | Skema DP final (wajib/opsional, nominal) | **Diputuskan (26 Nov 2026):** DP/pelunasan tidak diproses di website. Pelanggan diarahkan ke WhatsApp admin cabang (tautan `wa.me` berisi ringkasan + kode reservasi) untuk menyelesaikan DP/pelunasan dan mengirim bukti transfer di chat. Admin memverifikasi di WhatsApp lalu menandai status pembayaran secara manual di dashboard web. Skema DP tetap bisa dikonfigurasi Owner sebagai acuan admin. |
+| D2 | Payment gateway atau hanya unggah bukti transfer | **Diputuskan (26 Nov 2026):** tidak memakai payment gateway (tanpa Midtrans/Xendit/dll.) dan website tidak menyediakan unggah bukti bayar. Bukti transfer dikirim lewat WhatsApp. |
 | D3 | Two-Factor Authentication untuk admin | **Diputuskan (8 Nov 2026):** Google Authenticator (TOTP), wajib untuk Owner & Admin Cabang. Masuk backlog sebagai tugas 1.5 (Hasbi). |
 | D8 | Hosting | **Diputuskan (8 Nov 2026):** AWS EC2 Free Tier |
-| D4 | E-tiket di UC-10 tertulis "Telegram/Email pelanggan", sedangkan Batasan Masalah menyebut WhatsApp/email | Ikuti Batasan Masalah: **WhatsApp/email** |
+| D4 | E-tiket di UC-10 tertulis "Telegram/Email pelanggan", sedangkan Batasan Masalah menyebut WhatsApp/email | Ikuti Batasan Masalah: **WhatsApp/email** (WhatsApp lewat Baileys, D6) |
 | D5 | Jam operasional Soragan (laporan 07.00–00.00, form 10.00–24.00) | Konfirmasi ke mitra |
-| D6 | Kanal WhatsApp: API resmi, gateway pihak ketiga, atau tautan `wa.me` | Belum diputuskan (tugas 7.3) |
-| D7 | Framework service Python (FastAPI/Flask) | Diputuskan oleh PIC AI di tugas 6.1 |
+| D6 | Kanal WhatsApp: API resmi, gateway pihak ketiga, atau tautan `wa.me` | **Diputuskan (26 Nov 2026):** gateway WhatsApp memakai **Baileys** (service Node.js terpisah, satu session/nomor resmi Nabe untuk capstone; isi pesan dibedakan per cabang). Dipakai untuk pesan transaksional pelanggan: konfirmasi, e-tiket, dan pengingat H-1 lewat queue + log `notification_logs` (tugas 7.3). Admin/pelanggan tetap punya fallback manual tautan `wa.me` bila gateway tidak aktif/logout. Session Baileys disimpan di storage privat dan tidak ter-commit. Risiko jalur tidak resmi diterima: bisa logout/perlu pairing ulang dan tidak untuk blast promo massal. |
+| D7 | Framework service Python (FastAPI/Flask) | **Diputuskan (26 Nov 2026):** **FastAPI** (Uvicorn 1 worker, Pydantic v2, scikit-learn). Dipakai tugas 6.1 (chatbot) dan 6.3 (forecasting & skor no-show). Laravel memanggil lewat HTTP (`PYTHON_AI_SERVICE_URL`) dan tetap menjadi sumber data; service Python tidak mengakses MySQL secara langsung pada tahap awal. Bila service Python tidak tersedia, Laravel memakai fallback: label Terlaris dari admin, fallback chatbot, dan skor no-show kosong. |
 
 ## 11. Di luar lingkup
 
