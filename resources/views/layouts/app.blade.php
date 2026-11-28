@@ -191,6 +191,9 @@
         </div>
     </footer>
 
+    <!-- Floating Chatbot Widget (Tugas 6.2) -->
+    <x-chatbot-widget />
+
     <!-- Mobile Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

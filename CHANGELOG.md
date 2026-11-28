@@ -33,6 +33,7 @@ Di akhir setiap sprint, PM memindahkan isi `[Unreleased]` ke versi baru dengan t
 - CRUD cabang, menu, dan kuota mewajibkan verifikasi 2FA setelah sinkronisasi hasil merge #21 (1.5, #23)
 
 ### Added
+- UI widget chatbot publik ("Hai, Nabe di sini!"), endpoint Laravel `/chatbot/message` berdata database, dan fallback siap integrasi NLP 6.1 (6.2)
 - Backend katalog menu dari database + CMS promosi owner (CRUD + banner) dan CMS teks info outlet/promo halaman utama (3.4)
 - Two-Factor Authentication Google Authenticator (TOTP): aktivasi QR + kode cadangan 8x sekali pakai, verifikasi tiap login, kunci 60 detik setelah 5x salah, reset oleh owner (1.5)
 - CRUD data master cabang, menu, dan kuota (CapacitySlot) untuk owner, lengkap dengan Form Request berbahasa Indonesia, upload foto menu, dan feature test (2.2, #7)

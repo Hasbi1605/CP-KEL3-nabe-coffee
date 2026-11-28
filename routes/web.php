@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\TwoFactorResetController;
 use App\Http\Controllers\Auth\TwoFactorSetupController;
+use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Menu\MenuCatalogController;
 use App\Models\Promotion;
 use App\Services\Menu\HomepageContentService;
@@ -57,6 +58,9 @@ Route::get('/admin/dashboard', function () {
 })->middleware(['auth', 'two-factor'])->name('admin.dashboard');
 
 Route::get('/menu', [MenuCatalogController::class, 'index'])->name('menu.index');
+Route::post('/chatbot/message', [ChatbotController::class, 'message'])
+    ->middleware('throttle:30,1')
+    ->name('chatbot.message');
 
 Route::middleware(['auth', 'role:owner', 'two-factor'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::resource('promotions', PromotionController::class);

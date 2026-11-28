@@ -1,4 +1,5 @@
 import './bootstrap';
+import './chatbot';
 
 const categoryTabs = document.querySelectorAll('[data-category-filter]');
 const menuCards = document.querySelectorAll('[data-menu-card]');
