@@ -282,4 +282,25 @@
         z-index: 10;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
+
+    @keyframes chat-pulse {
+        0%,
+        100% {
+            opacity: 0.35;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .chat-loading-dot {
+        animation: chat-pulse 1.1s ease-in-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .chat-loading-dot {
+            animation: none;
+            opacity: 1;
+        }
+    }
 }
